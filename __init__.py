@@ -17,7 +17,6 @@
 #
 # ***** END GPL LICENCE BLOCK *****
 
-
 bl_info = {
     "name": "Mixamo Rig for Blender 4.0",
     "author": "Mixamo - Xin",
@@ -29,7 +28,6 @@ bl_info = {
     "doc_url": "https://gitlab.com/x190/mixamo_blender4",
     "tracker_url": "https://gitlab.com/x190/mixamo_blender4"
 }
-
 
 if "bpy" in locals():
     import importlib
@@ -43,23 +41,27 @@ if "bpy" in locals():
         importlib.reload(utils)
     if "animation" in locals():
         importlib.reload(animation)
-
+    if "mixamo_rename_opensim" in locals():
+        importlib.reload(mixamo_rename_opensim)
 
 import bpy
 from . import mixamo_rig_prefs
 from . import mixamo_rig
 from . import mixamo_rig_functions
 from . import utils
+from . import mixamo_rename_opensim  # Neue Datei importieren
 
 def register():
     mixamo_rig_prefs.register()
     mixamo_rig.register()
     mixamo_rig_functions.register()
+    mixamo_rename_opensim.register()  # Neue Datei registrieren
 
 def unregister():
     mixamo_rig_prefs.unregister()
     mixamo_rig.unregister()
     mixamo_rig_functions.unregister()
+    mixamo_rename_opensim.unregister()  # Neue Datei deregistrieren
 
 if __name__ == "__main__":
     register()
