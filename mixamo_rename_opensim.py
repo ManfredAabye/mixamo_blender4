@@ -1,6 +1,6 @@
 bl_info = {
     "name": "Mixamo Bone Rename to OpenSim",
-    "author": "OpenAI + User",
+    "author": "Manni",
     "version": (1, 0),
     "blender": (4, 4, 0),
     "location": "Object > Rename Bones",
