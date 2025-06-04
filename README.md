@@ -29,7 +29,7 @@
 
 **Warum das funktioniert:**  
 
-- Deine Änderungen sind **minimal** und bleiben nah am Original.  
+- Meine Änderungen sind **minimal** und bleiben nah am Original.  
 - Keine komplexen Anpassungen nötig – nur Austausch + eine neue Datei.
 
 
