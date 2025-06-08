@@ -144,7 +144,31 @@ PRESETS = {
         "FaceLipLowerRight": "mFaceLipLowerRight",
         "FaceTeethLower": "mFaceTeethLower",
         "FaceTeethUpper": "mFaceTeethUpper",
-        "FaceChin": "mFaceChin"
+        "FaceChin": "mFaceChin",
+
+        # List of wing bones
+        "WingsRoot": "mWingsRoot",
+        "Wing1Left": "mWing1Left",
+        "Wing2Left": "mWing2Left",
+        "Wing3Left": "mWing3Left",
+        "Wing4Left": "mWing4Left",
+        "Wing1Right": "mWing1Right",
+        "Wing2Right": "mWing2Right",
+        "Wing3Right": "mWing3Right",
+        "Wing4Right": "mWing4Right",
+        "Wing4FanRight": "mWing4FanRight",
+        "Wing4FanLeft": "mWing4FanLeft",
+
+        # List of tail bones
+        "Tail1": "mTail1",
+        "Tail2": "mTail2",
+        "Tail3": "mTail3",
+        "Tail4": "mTail4",
+        "Tail5": "mTail5",
+        "Tail6": "mTail6",
+
+        # List of other joints
+        "Groin": "mGroin"
     },
     'BASIC': {
         # Minimal bone set for basic SL avatars
@@ -154,7 +178,7 @@ PRESETS = {
         "Spine2": "mTorso",
         "Neck": "mNeck",
         "Head": "mHead",
-        "HeadTop_End": "mHeadTop_End",
+        "HeadTop_End": "mHeadTop_End"
     },
     'FACE_ONLY': {
         # Face bones only
@@ -302,6 +326,7 @@ class OBJECT_OT_import_mapping(Operator, ImportHelper):
         options={'HIDDEN'}
     )
     
+    # execute was? execute1
     def execute(self, context):
         scene = context.scene
         props = scene.bone_mapping_props
@@ -317,39 +342,110 @@ class OBJECT_OT_import_mapping(Operator, ImportHelper):
         
         return {'FINISHED'}
 
+# class OBJECT_OT_export_mapping(Operator, ExportHelper):
+#     """Export current bone mapping to JSON file"""
+#     bl_idname = "object.export_mapping"
+#     bl_label = "Export Bone Mapping"
+#     bl_options = {'REGISTER', 'UNDO'}
+    
+#     filename_ext = ".json"
+#     filter_glob: StringProperty(default="*.json", options={'HIDDEN'})
+    
+#     def execute(self, context):
+#         try:
+#             bone_map = self.get_current_bone_mapping(context)
+#             with open(self.filepath, 'w') as f:
+#                 json.dump(bone_map, f, indent=2)
+#             self.report({'INFO'}, f"Exported {len(bone_map)} bones")
+#         except Exception as e:
+#             self.report({'ERROR'}, f"Export failed: {str(e)}")
+#         return {'FINISHED'}
+    
+#     def get_current_bone_mapping(self, context):
+#         """Generates bone mapping from selected armature's actual bones"""
+#         bone_map = {}
+#         props = context.scene.bone_mapping_props
+        
+#         # Get first selected armature
+#         armature = next((obj for obj in context.selected_objects if obj.type == 'ARMATURE'), None)
+        
+#         if not armature:
+#             self.report({'WARNING'}, "No armature selected")
+#             return bone_map
+            
+#         # Store current mode
+#         current_mode = armature.mode
+#         bpy.context.view_layer.objects.active = armature
+        
+#         try:
+#             # Get bones from pose mode (works in all modes)
+#             bone_map = {bone.name: bone.name for bone in armature.pose.bones}
+            
+#             # Apply current mappings
+#             if props.preset == 'CUSTOM':
+#                 custom_map = context.scene.get('custom_bone_map', {})
+#                 bone_map.update({k:v for k,v in custom_map.items() if k in bone_map})
+#             else:
+#                 preset_map = PRESETS.get(props.preset, {})
+#                 bone_map.update({k:v for k,v in preset_map.items() if k in bone_map})
+                
+#         finally:
+#             # Restore original mode
+#             bpy.ops.object.mode_set(mode=current_mode)
+        
+#         return bone_map
+
 class OBJECT_OT_export_mapping(Operator, ExportHelper):
-    """Exports current bone mapping to JSON file"""
+    """Export current bone mapping to JSON file"""
     bl_idname = "object.export_mapping"
     bl_label = "Export Bone Mapping"
     bl_options = {'REGISTER', 'UNDO'}
     
     filename_ext = ".json"
-    
-    filter_glob: StringProperty(
-        default="*.json",
-        options={'HIDDEN'}
-    )
+    filter_glob: StringProperty(default="*.json", options={'HIDDEN'})
     
     def execute(self, context):
-        scene = context.scene
-        props = scene.bone_mapping_props
+        bone_map = self.get_current_bone_mapping(context)
         
-        current_map = self.get_current_mapping(context)
-        
+        if not bone_map:
+            self.report({'ERROR'}, "No bones to export")
+            return {'CANCELLED'}
+            
         try:
-            with open(self.filepath, 'w') as f:
-                json.dump(current_map, f, indent=2)
-            self.report({'INFO'}, f"Exported mapping for {len(current_map)} bones")
+            with open(self.filepath, 'w', encoding='utf-8') as f:
+                json.dump(bone_map, f, indent=2, ensure_ascii=False)
+            self.report({'INFO'}, f"Successfully exported {len(bone_map)} bones")
         except Exception as e:
             self.report({'ERROR'}, f"Export failed: {str(e)}")
-        
+            return {'CANCELLED'}
+            
         return {'FINISHED'}
     
-    def get_current_mapping(self, context):
-        if context.scene.bone_mapping_props.preset == 'CUSTOM':
-            return context.scene.get('custom_bone_map', {})
-        return PRESETS[context.scene.bone_mapping_props.preset]
-
+    def get_current_bone_mapping(self, context):
+        """Generates complete bone mapping including custom renames"""
+        props = context.scene.bone_mapping_props
+        bone_map = {}
+        
+        # Get the active armature
+        armatures = [obj for obj in context.selected_objects if obj.type == 'ARMATURE']
+        if not armatures:
+            return {}
+            
+        armature = armatures[0]
+        
+        # Get all bones (works in any mode)
+        bone_map = {bone.name: bone.name for bone in armature.pose.bones}
+        
+        # Apply current mappings
+        if props.preset == 'CUSTOM':
+            custom_map = context.scene.get('custom_bone_map', {})
+            bone_map.update({k: v for k, v in custom_map.items() if k in bone_map})
+        else:
+            preset_map = PRESETS.get(props.preset, {})
+            bone_map.update({k: v for k, v in preset_map.items() if k in bone_map})
+        
+        return bone_map
+    
 # ------------------------------------------------------------------------
 # MAIN RENAMING OPERATOR
 # ------------------------------------------------------------------------
@@ -377,6 +473,7 @@ class OBJECT_OT_rename_mixamo_bones(Operator):
             return props.manual_prefix
         return props.custom_prefix
 
+    # execute was? execute3
     def execute(self, context):
         props = context.scene.bone_mapping_props
         
@@ -446,6 +543,32 @@ class OBJECT_OT_optimize_weights(Operator):
     bl_label = "Optimize Weights"
     bl_options = {'REGISTER', 'UNDO'}
 
+    # execute was? execute3
+    # def execute(self, context):
+    #     props = context.scene.bone_mapping_props
+        
+    #     for obj in context.selected_objects:
+    #         if obj.type != 'MESH':
+    #             continue
+                
+    #         # Clean up low influence weights
+    #         for vg in obj.vertex_groups:
+    #             # Get all vertices with weights below threshold
+    #             to_remove = [
+    #                 v.index for v in obj.data.vertices 
+    #                 if vg.weight(v.index) < props.weight_threshold
+    #             ]
+                
+    #             # Remove the low weights
+    #             if to_remove:
+    #                 vg.remove(to_remove)
+            
+    #         # Harden joints if enabled
+    #         if props.harden_joints:
+    #             self.harden_joints(obj)
+                
+    #     return {'FINISHED'}
+    
     def execute(self, context):
         props = context.scene.bone_mapping_props
         
@@ -453,22 +576,25 @@ class OBJECT_OT_optimize_weights(Operator):
             if obj.type != 'MESH':
                 continue
                 
-            # Clean up low influence weights
             for vg in obj.vertex_groups:
-                # Get all vertices with weights below threshold
-                to_remove = [
-                    v.index for v in obj.data.vertices 
-                    if vg.weight(v.index) < props.weight_threshold
-                ]
+                to_remove = []
+                for v in obj.data.vertices:
+                    try:
+                        # Check if vertex has weight in this group
+                        if vg.weight(v.index) < props.weight_threshold:
+                            to_remove.append(v.index)
+                    except RuntimeError:
+                        # Vertex not in group, skip it
+                        continue
                 
-                # Remove the low weights
+                # Remove vertices below threshold in batch
                 if to_remove:
                     vg.remove(to_remove)
-            
+                    
             # Harden joints if enabled
             if props.harden_joints:
                 self.harden_joints(obj)
-                
+        
         return {'FINISHED'}
 
     def harden_joints(self, mesh_obj):
