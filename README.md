@@ -2,6 +2,8 @@
 
 ## **So einfach geht's:**  
 
+Diese Version herunterladen als ZIP dann umbenennen mixamo_blender4-main.zip in mixamo_blender4.zip dann als externes Add-on installieren.
+
 1. **Original-Plugin herunterladen**  
    - Von [GitLab](https://gitlab.com/x190/mixamo_blender4).  
 
