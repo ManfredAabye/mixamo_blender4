@@ -1,4 +1,4 @@
-# **Mixamo-Blender-4-Plugin erweitern**  
+# **Mixamo-Blender-4-Plugin**  
 
 ## **So einfach geht's:**  
 
