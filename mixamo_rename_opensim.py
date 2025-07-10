@@ -342,59 +342,6 @@ class OBJECT_OT_import_mapping(Operator, ImportHelper):
         
         return {'FINISHED'}
 
-# class OBJECT_OT_export_mapping(Operator, ExportHelper):
-#     """Export current bone mapping to JSON file"""
-#     bl_idname = "object.export_mapping"
-#     bl_label = "Export Bone Mapping"
-#     bl_options = {'REGISTER', 'UNDO'}
-    
-#     filename_ext = ".json"
-#     filter_glob: StringProperty(default="*.json", options={'HIDDEN'})
-    
-#     def execute(self, context):
-#         try:
-#             bone_map = self.get_current_bone_mapping(context)
-#             with open(self.filepath, 'w') as f:
-#                 json.dump(bone_map, f, indent=2)
-#             self.report({'INFO'}, f"Exported {len(bone_map)} bones")
-#         except Exception as e:
-#             self.report({'ERROR'}, f"Export failed: {str(e)}")
-#         return {'FINISHED'}
-    
-#     def get_current_bone_mapping(self, context):
-#         """Generates bone mapping from selected armature's actual bones"""
-#         bone_map = {}
-#         props = context.scene.bone_mapping_props
-        
-#         # Get first selected armature
-#         armature = next((obj for obj in context.selected_objects if obj.type == 'ARMATURE'), None)
-        
-#         if not armature:
-#             self.report({'WARNING'}, "No armature selected")
-#             return bone_map
-            
-#         # Store current mode
-#         current_mode = armature.mode
-#         bpy.context.view_layer.objects.active = armature
-        
-#         try:
-#             # Get bones from pose mode (works in all modes)
-#             bone_map = {bone.name: bone.name for bone in armature.pose.bones}
-            
-#             # Apply current mappings
-#             if props.preset == 'CUSTOM':
-#                 custom_map = context.scene.get('custom_bone_map', {})
-#                 bone_map.update({k:v for k,v in custom_map.items() if k in bone_map})
-#             else:
-#                 preset_map = PRESETS.get(props.preset, {})
-#                 bone_map.update({k:v for k,v in preset_map.items() if k in bone_map})
-                
-#         finally:
-#             # Restore original mode
-#             bpy.ops.object.mode_set(mode=current_mode)
-        
-#         return bone_map
-
 class OBJECT_OT_export_mapping(Operator, ExportHelper):
     """Export current bone mapping to JSON file"""
     bl_idname = "object.export_mapping"
@@ -542,32 +489,6 @@ class OBJECT_OT_optimize_weights(Operator):
     bl_idname = "object.optimize_weights"
     bl_label = "Optimize Weights"
     bl_options = {'REGISTER', 'UNDO'}
-
-    # execute was? execute3
-    # def execute(self, context):
-    #     props = context.scene.bone_mapping_props
-        
-    #     for obj in context.selected_objects:
-    #         if obj.type != 'MESH':
-    #             continue
-                
-    #         # Clean up low influence weights
-    #         for vg in obj.vertex_groups:
-    #             # Get all vertices with weights below threshold
-    #             to_remove = [
-    #                 v.index for v in obj.data.vertices 
-    #                 if vg.weight(v.index) < props.weight_threshold
-    #             ]
-                
-    #             # Remove the low weights
-    #             if to_remove:
-    #                 vg.remove(to_remove)
-            
-    #         # Harden joints if enabled
-    #         if props.harden_joints:
-    #             self.harden_joints(obj)
-                
-    #     return {'FINISHED'}
     
     def execute(self, context):
         props = context.scene.bone_mapping_props
@@ -602,6 +523,375 @@ class OBJECT_OT_optimize_weights(Operator):
         # This is a placeholder - actual implementation would require
         # modifying the weight paint data directly
         print(f"Weight optimization would be applied to {mesh_obj.name}")
+
+# ------------------------------------------------------------------------
+# Auto Parenting and Auto Weighting Section
+# ------------------------------------------------------------------------
+class OBJECT_OT_auto_parenting(bpy.types.Operator):
+    """Automatisches Bone Parenting basierend auf Preset-Mapping"""
+    bl_idname = "object.auto_parenting"
+    bl_label = "Auto Bone Parenting"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        props = context.scene.bone_mapping_props
+        preset_name = props.preset
+        preset_map = PRESETS.get(preset_name, {})
+
+        # Armature finden
+        armatures = [obj for obj in context.selected_objects if obj.type == 'ARMATURE']
+        if not armatures:
+            self.report({'ERROR'}, "Kein Armature ausgewählt")
+            return {'CANCELLED'}
+
+        armature = armatures[0]
+        bpy.context.view_layer.objects.active = armature
+
+        # In Edit Mode wechseln
+        bpy.ops.object.mode_set(mode='EDIT')
+        bones = armature.data.edit_bones
+
+        count = 0
+        for src_name, target_name in preset_map.items():
+            src_bone = bones.get(src_name)
+            target_bone = bones.get(target_name)
+            if src_bone and target_bone and src_bone != target_bone:
+                src_bone.parent = target_bone
+                src_bone.use_connect = False
+                count += 1
+
+        bpy.ops.object.mode_set(mode='OBJECT')
+        self.report({'INFO'}, f"{count} Bones automatisch verbunden")
+        return {'FINISHED'}
+
+# ------------------------------------------------------------------------
+# Weight Preset Save/Load Section
+# ------------------------------------------------------------------------
+class OBJECT_OT_save_weights_json(bpy.types.Operator, ExportHelper):
+    """Speichert Vertex-Gewichtungen in JSON-Datei"""
+    bl_idname = "object.save_weights_json"
+    bl_label = "Weights exportieren"
+    bl_description = "Speichert alle Vertex-Gewichte als JSON"
+    filename_ext = ".json"
+    
+    filter_glob: bpy.props.StringProperty(default="*.json", options={'HIDDEN'})
+
+    def execute(self, context):
+        obj = context.active_object
+        if not obj or obj.type != 'MESH':
+            self.report({'ERROR'}, "Kein Mesh-Objekt ausgewählt")
+            return {'CANCELLED'}
+            
+        weights = {}
+        mesh = obj.data
+        
+        for vg in obj.vertex_groups:
+            weights[vg.name] = {}
+            for v in mesh.vertices:
+                try:
+                    w = vg.weight(v.index)
+                    if w > 0.0:  # Nur relevante Weights speichern
+                        weights[vg.name][str(v.index)] = w
+                except:
+                    continue
+        
+        with open(self.filepath, 'w') as f:
+            json.dump(weights, f, indent=2)
+            
+        self.report({'INFO'}, f"Weights exportiert: {os.path.basename(self.filepath)}")
+        return {'FINISHED'}
+
+
+class OBJECT_OT_load_weights_json(bpy.types.Operator, ImportHelper):
+    """Lädt Vertex-Gewichtungen aus JSON-Datei"""
+    bl_idname = "object.load_weights_json"
+    bl_label = "Weights importieren"
+    bl_description = "Lädt Vertex-Gewichte aus JSON"
+    filename_ext = ".json"
+    
+    filter_glob: bpy.props.StringProperty(default="*.json", options={'HIDDEN'})
+
+    def execute(self, context):
+        obj = context.active_object
+        if not obj or obj.type != 'MESH':
+            self.report({'ERROR'}, "Kein Mesh-Objekt ausgewählt")
+            return {'CANCELLED'}
+            
+        try:
+            with open(self.filepath, 'r') as f:
+                weights = json.load(f)
+                
+            # Vorhandene Groups löschen
+            for vg in obj.vertex_groups:
+                obj.vertex_groups.remove(vg)
+                
+            # Neue Groups erstellen
+            for vg_name in weights:
+                vg = obj.vertex_groups.new(name=vg_name)
+                for v_idx, weight in weights[vg_name].items():
+                    vg.add([int(v_idx)], weight, 'REPLACE')
+                    
+        except Exception as e:
+            self.report({'ERROR'}, f"Import fehlgeschlagen: {str(e)}")
+            return {'CANCELLED'}
+            
+        self.report({'INFO'}, f"Weights importiert: {os.path.basename(self.filepath)}")
+        return {'FINISHED'}
+
+
+class OBJECT_OT_auto_weighting(bpy.types.Operator):
+    """Automatische Gewichtszuweisung via Armature"""
+    bl_idname = "object.auto_weighting"
+    bl_label = "Auto-Gewichtung"
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    def execute(self, context):
+        obj = context.active_object
+        if not obj or obj.type != 'MESH':
+            self.report({'ERROR'}, "Kein Mesh-Objekt ausgewählt")
+            return {'CANCELLED'}
+            
+        armature = next((o for o in context.selected_objects if o.type == 'ARMATURE'), None)
+        if not armature:
+            self.report({'ERROR'}, "Keine Armature ausgewählt")
+            return {'CANCELLED'}
+            
+        try:
+            # Backup der aktuellen Selektion
+            prev_active = context.view_layer.objects.active
+            prev_selected = context.selected_objects
+            
+            # Parenting durchführen
+            context.view_layer.objects.active = obj
+            obj.select_set(True)
+            armature.select_set(True)
+            
+            bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+            
+            # Originale Selektion wiederherstellen
+            context.view_layer.objects.active = prev_active
+            for o in prev_selected:
+                o.select_set(True)
+                
+        except Exception as e:
+            self.report({'ERROR'}, f"Fehler: {str(e)}")
+            return {'CANCELLED'}
+            
+        self.report({'INFO'}, "Automatische Gewichtung erfolgreich")
+        return {'FINISHED'}
+
+# ------------------------------------------------------------------------
+# Bone Info Report Operator
+# ------------------------------------------------------------------------
+class OBJECT_OT_bone_info(Operator):
+    """Zeigt detaillierte Knochen-Informationen und prüft auf Auffälligkeiten"""
+    bl_idname = "armature.bone_info"
+    bl_label = "Bone Info Report"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return (context.active_object and 
+                context.active_object.type == 'ARMATURE' and
+                context.mode == 'POSE')
+
+    def execute(self, context):
+        bone = context.active_pose_bone
+        if not bone:
+            self.report({'ERROR'}, "Kein Knochen ausgewählt!")
+            return {'CANCELLED'}
+
+        # Basis-Informationen sammeln
+        info = [
+            f"Name: {bone.name}",
+            f"Parent: {bone.parent.name if bone.parent else 'None'}",
+            f"Length: {bone.length:.4f}",
+            f"Volume: {bone.bone.head_radius * bone.bone.tail_radius * bone.length:.4f}",
+            f"Connected: {bone.bone.use_connect}"
+        ]
+
+        # Gewichtungsanalyse (nur wenn Mesh ausgewählt)
+        weight_stats = self.get_weight_stats(context, bone.name)
+        if weight_stats:
+            info.extend([
+                "",
+                "Weight Statistics:",
+                f"Vertices: {weight_stats['vertex_count']}",
+                f"Avg Weight: {weight_stats['avg_weight']:.2f}",
+                f"Max Weight: {weight_stats['max_weight']:.2f}",
+                f"Zero Weights: {weight_stats['zero_count']}",
+            ])
+
+        # Validierung
+        warnings = self.validate_bone(bone, weight_stats)
+        if warnings:
+            info.extend(["", "WARNINGS:"] + warnings)
+
+        # Popup anzeigen
+        context.window_manager.popup_menu(
+            lambda self, ctx: [self.layout.label(text=line) for line in info if line],
+            title="Bone Info",
+            icon='BONE_DATA'
+        )
+
+        return {'FINISHED'}
+
+    def get_weight_stats(self, context, bone_name):
+        """Analysiert die Vertex-Gewichte für diesen Knochen"""
+        obj = context.active_object
+        if not obj or obj.type != 'MESH':
+            return None
+
+        vertex_group = obj.vertex_groups.get(bone_name)
+        if not vertex_group:
+            return None
+
+        mesh = obj.data
+        total = 0
+        count = 0
+        max_weight = 0
+        zero_count = 0
+
+        for v in mesh.vertices:
+            try:
+                weight = vertex_group.weight(v.index)
+                if weight > 0:
+                    total += weight
+                    count += 1
+                    max_weight = max(max_weight, weight)
+                else:
+                    zero_count += 1
+            except:
+                zero_count += 1
+
+        return {
+            'vertex_count': count,
+            'avg_weight': total / count if count else 0,
+            'max_weight': max_weight,
+            'zero_count': zero_count
+        }
+
+    def validate_bone(self, bone, weight_stats):
+        """Führt Validierungsprüfungen durch"""
+        warnings = []
+        
+        # Knochenlänge prüfen
+        if bone.length < 0.001:
+            warnings.append(f"- Extrem kurze Länge ({bone.length:.4f})")
+        
+        # Gewichtungsprüfung
+        if weight_stats:
+            if weight_stats['avg_weight'] < 0.1:
+                warnings.append("- Geringer durchschnittlicher Einfluss (Avg Weight < 0.1)")
+            if weight_stats['max_weight'] < 0.5:
+                warnings.append("- Keine starken Vertex-Bindungen (Max Weight < 0.5)")
+        
+        return warnings
+
+# ------------------------------------------------------------------------
+# Validate Rig Operator
+# ------------------------------------------------------------------------
+class ARMATURE_OT_validate_rig(Operator):
+    """Überprüft das gesamte Rig auf häufige Probleme"""
+    bl_idname = "armature.validate_rig"
+    bl_label = "Validate Rig"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        armature = context.active_object
+        if not armature or armature.type != 'ARMATURE':
+            self.report({'ERROR'}, "Keine Armature ausgewählt")
+            return {'CANCELLED'}
+
+        issues = []
+        bone_count = 0
+        weight_issues = 0
+        scale_issues = 0
+
+        # 1. Knochen-Hierarchie prüfen
+        for bone in armature.pose.bones:
+            bone_count += 1
+            
+            # A. Nicht-uniforme Skalierung
+            if abs(bone.scale.x - bone.scale.y) > 0.001 or abs(bone.scale.y - bone.scale.z) > 0.001:
+                issues.append(f"⚠️ Nicht-uniforme Skalierung: {bone.name}")
+                scale_issues += 1
+
+            # B. Extrem kurze Knochen
+            if bone.length < 0.001:
+                issues.append(f"⚠️ Extrem kurzer Knochen: {bone.name} (Länge: {bone.length:.4f})")
+
+            # C. Gewichtungsprobleme (nur wenn Mesh ausgewählt)
+            if context.selected_objects and context.selected_objects[0].type == 'MESH':
+                mesh = context.selected_objects[0]
+                vg = mesh.vertex_groups.get(bone.name)
+                if vg:
+                    weights = [vg.weight(v.index) for v in mesh.data.vertices if vg.weight(v.index) > 0]
+                    if weights:
+                        avg = sum(weights) / len(weights)
+                        if avg < 0.2:
+                            issues.append(f"⚠️ Geringer Einfluss: {bone.name} (Avg: {avg:.2f})")
+                            weight_issues += 1
+
+        # 2. Root-Bone check
+        root_bones = [b for b in armature.pose.bones if not b.parent]
+        if len(root_bones) != 1:
+            issues.append("⚠️ Mehrere Root-Bones vorhanden")
+
+        # 3. Ergebnis anzeigen
+        if not issues:
+            self.report({'INFO'}, f"✅ Rig ist sauber ({bone_count} Knochen geprüft)")
+        else:
+            issues.insert(0, f"Rig-Analyse ({bone_count} Knochen):")
+            issues.append(f"\n{len(issues)-1} Probleme gefunden:")
+            issues.append(f"- {weight_issues} Gewichtungsprobleme")
+            issues.append(f"- {scale_issues} Skalierungsprobleme")
+            
+            # Multiline-Report
+            text = "\n".join(issues)
+            self.report({'WARNING'}, text)
+            
+            # Ausführliches Popup
+            context.window_manager.popup_menu(
+                lambda self, ctx: [self.layout.label(text=line) for line in issues if line],
+                title="Rig Validation Report", 
+                icon='ERROR'
+            )
+
+        return {'FINISHED'}
+
+# ------------------------------------------------------------------------
+# Apply All Transforms Operator
+# ------------------------------------------------------------------------
+class OBJECT_OT_apply_all_transforms(Operator):
+    """Wendet alle Transformationen (Location, Rotation, Scale) auf das ausgewählte Objekt an"""
+    bl_idname = "object.apply_all_transforms"
+    bl_label = "Apply All Transforms"
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        try:
+            # Sicherstellen dass wir im Object Mode sind
+            if context.object.mode != 'OBJECT':
+                bpy.ops.object.mode_set(mode='OBJECT')
+            
+            # Alle Transformationen anwenden
+            bpy.ops.object.transform_apply(
+                location=True,
+                rotation=True,
+                scale=True
+            )
+            
+            self.report({'INFO'}, "Alle Transformationen wurden angewendet")
+            return {'FINISHED'}
+            
+        except Exception as e:
+            self.report({'ERROR'}, f"Fehler: {str(e)}")
+            return {'CANCELLED'}
 
 # ------------------------------------------------------------------------
 # UI PANEL
@@ -645,6 +935,32 @@ class OBJECT_PT_mixamo_bone_panel(Panel):
         box.prop(props, "harden_joints")
         box.operator("object.optimize_weights", text="Optimize Weights", icon='MOD_VERTEX_WEIGHT')
 
+        # Auto Parenting and Auto Weighting Section
+        box = layout.box()
+        box.label(text="Auto-Rigging Funktionen")
+        box.operator("object.auto_parenting", text="Knochen automatisch parenten", icon='CONSTRAINT_BONE')
+        box.operator("object.auto_weighting", text="Gewichtung automatisch berechnen", icon='MOD_VERTEX_WEIGHT')
+
+        # Weight Presets Section
+        box = layout.box()
+        box.label(text="Weight Presets", icon='MOD_VERTEX_WEIGHT')
+        row = box.row()
+        row.operator("object.save_weights_json", icon='EXPORT')
+        row.operator("object.load_weights_json", icon='IMPORT')
+        box.operator("object.auto_weighting", icon='AUTO')
+
+        # Bone Analysis Section (NEU)
+        box = layout.box()
+        box.label(text="Bone Analysis", icon='BONE_DATA')
+        col = box.column(align=True)
+        col.operator("armature.bone_info", text="Show Bone Info", icon='INFO')
+        col.operator("armature.validate_rig", text="Validate Rigging", icon='CHECKMARK')
+
+        # Apply All Transforms Button
+        box = layout.box()
+        box.label(text="Apply All Transforms", icon='CON_LOCLIKE')
+        box.operator("object.apply_all_transforms", icon='CON_LOCLIKE')
+
 # ------------------------------------------------------------------------
 # REGISTRATION
 # ------------------------------------------------------------------------
@@ -655,6 +971,13 @@ def register():
     bpy.utils.register_class(OBJECT_OT_rename_mixamo_bones)
     bpy.utils.register_class(OBJECT_OT_optimize_weights)
     bpy.utils.register_class(OBJECT_PT_mixamo_bone_panel)
+    bpy.utils.register_class(OBJECT_OT_auto_parenting)
+    bpy.utils.register_class(OBJECT_OT_save_weights_json)
+    bpy.utils.register_class(OBJECT_OT_load_weights_json)
+    bpy.utils.register_class(OBJECT_OT_auto_weighting)
+    bpy.utils.register_class(OBJECT_OT_bone_info)
+    bpy.utils.register_class(ARMATURE_OT_validate_rig)
+    bpy.utils.register_class(OBJECT_OT_apply_all_transforms)
     
     bpy.types.Scene.bone_mapping_props = PointerProperty(
         type=BoneMappingProperties)
@@ -666,6 +989,13 @@ def unregister():
     bpy.utils.unregister_class(OBJECT_OT_rename_mixamo_bones)
     bpy.utils.unregister_class(OBJECT_OT_optimize_weights)
     bpy.utils.unregister_class(OBJECT_PT_mixamo_bone_panel)
+    bpy.utils.unregister_class(OBJECT_OT_auto_parenting)
+    bpy.utils.unregister_class(OBJECT_OT_auto_weighting)
+    bpy.utils.unregister_class(OBJECT_OT_load_weights_json)
+    bpy.utils.unregister_class(OBJECT_OT_save_weights_json)
+    bpy.utils.unregister_class(OBJECT_OT_bone_info)
+    bpy.utils.unregister_class(ARMATURE_OT_validate_rig)
+    bpy.utils.unregister_class(OBJECT_OT_apply_all_transforms)
     
     del bpy.types.Scene.bone_mapping_props
 
