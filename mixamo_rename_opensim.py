@@ -7,7 +7,7 @@ MIXAMO TO OPENSIM/SECOND LIFE RIG CONVERTER
 
 bl_info = {
     "name": "Mixamo to OpenSim Rig Converter",
-    "author": "Manni V7",
+    "author": "Manni V9",
     "version": (1, 0),
     "blender": (4, 4, 0),
     "location": "3D View > Sidebar > Mixamo Tools",
