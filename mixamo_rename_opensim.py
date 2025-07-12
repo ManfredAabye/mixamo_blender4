@@ -5,9 +5,24 @@ MIXAMO TO OPENSIM/SECOND LIFE RIG CONVERTER
 - Preserves all original functionality
 """
 
+# todo: Automatisches Umwandeln: Mixamo FBX → Second Life/OpenSim Bento DAE in Blender
+# Nicht an Checkboxen sparen oder Buttons, Manuelle und automatische einstellungen verwenden.
+# Was genau muss passieren beziehungsweise berücksichtigt werden:
+# Hierarchie korrigieren
+# Vertex-Gewichtung an Bento-Bones übertragen
+# Automatisches Parenting der Bones
+# Joint Offsets
+# Die Rotationen und Bind-Posen
+# Einfaches Umbenennen reicht nicht. Damit ein Mixamo-Rig funktional in Second Life Bento funktioniert, müssen zusätzlich zur Umbenennung auch Struktur, Hierarchie und Gewichtung korrekt an Bento angepasst werden.
+# Bone Roll korrigieren
+# Restpose prüfen und korrigieren
+# dae (Collada) Export als extra button
+# Apply Transform button
+# Gesichtsrig + Bento-Extras
+
 bl_info = {
     "name": "Mixamo to OpenSim Rig Converter",
-    "author": "Manni V9",
+    "author": "Manni V12",
     "version": (1, 0),
     "blender": (4, 4, 0),
     "location": "3D View > Sidebar > Mixamo Tools",
@@ -16,6 +31,7 @@ bl_info = {
 }
 
 import bpy
+import os
 import re
 import json
 from bpy.types import Operator, Panel, PropertyGroup
@@ -402,6 +418,308 @@ BONE_PARENTS = {
     "mGroin": "mPelvis"
 }
 
+def load_bone_parents():
+    """Sicheres Laden der Bone-Hierarchie-Definition"""
+    addon_dir = os.path.dirname(__file__)
+    filepath = os.path.join(addon_dir, "bone_parents.json")
+    
+    default_structure = {
+        "mPelvis": None,
+        "mSpine1": "mPelvis",
+        "mSpine2": "mSpine1",
+        "mSpine3": "mSpine2",
+        "mSpine4": "mSpine3",
+        "mTorso": "mSpine4",
+        "mChest": "mTorso",
+        "mNeck": "mChest",
+        "mHead": "mNeck",
+        "mHeadTop_End": "mHead",
+        "mSkull": "mHead",
+
+        # Arme links
+        "mCollarLeft": "mChest",
+        "mShoulderLeft": "mCollarLeft",
+        "mElbowLeft": "mShoulderLeft",
+        "mWristLeft": "mElbowLeft",
+
+        # Finger links
+        "mHandThumb1Left": "mWristLeft",
+        "mHandThumb2Left": "mHandThumb1Left",
+        "mHandThumb3Left": "mHandThumb2Left",
+        "mHandIndex1Left": "mWristLeft",
+        "mHandIndex2Left": "mHandIndex1Left",
+        "mHandIndex3Left": "mHandIndex2Left",
+        "mHandMiddle1Left": "mWristLeft",
+        "mHandMiddle2Left": "mHandMiddle1Left",
+        "mHandMiddle3Left": "mHandMiddle2Left",
+        "mHandRing1Left": "mWristLeft",
+        "mHandRing2Left": "mHandRing1Left",
+        "mHandRing3Left": "mHandRing2Left",
+        "mHandPinky1Left": "mWristLeft",
+        "mHandPinky2Left": "mHandPinky1Left",
+        "mHandPinky3Left": "mHandPinky2Left",
+
+        # Arme rechts
+        "mCollarRight": "mChest",
+        "mShoulderRight": "mCollarRight",
+        "mElbowRight": "mShoulderRight",
+        "mWristRight": "mElbowRight",
+
+        # Finger rechts
+        "mHandThumb1Right": "mWristRight",
+        "mHandThumb2Right": "mHandThumb1Right",
+        "mHandThumb3Right": "mHandThumb2Right",
+        "mHandIndex1Right": "mWristRight",
+        "mHandIndex2Right": "mHandIndex1Right",
+        "mHandIndex3Right": "mHandIndex2Right",
+        "mHandMiddle1Right": "mWristRight",
+        "mHandMiddle2Right": "mHandMiddle1Right",
+        "mHandMiddle3Right": "mHandMiddle2Right",
+        "mHandRing1Right": "mWristRight",
+        "mHandRing2Right": "mHandRing1Right",
+        "mHandRing3Right": "mHandRing2Right",
+        "mHandPinky1Right": "mWristRight",
+        "mHandPinky2Right": "mHandPinky1Right",
+        "mHandPinky3Right": "mHandPinky2Right",
+
+        # Beine links
+        "mHipLeft": "mPelvis",
+        "mKneeLeft": "mHipLeft",
+        "mAnkleLeft": "mKneeLeft",
+        "mFootLeft": "mAnkleLeft",
+        "mToeLeft": "mFootLeft",
+        "mToeLeftEnd": "mToeLeft",
+
+        # Beine rechts
+        "mHipRight": "mPelvis",
+        "mKneeRight": "mHipRight",
+        "mAnkleRight": "mKneeRight",
+        "mFootRight": "mAnkleRight",
+        "mToeRight": "mFootRight",
+        "mToeRightEnd": "mToeRight",
+
+        # Gesicht
+        "mFaceRoot": "mHead",
+        "mFaceJaw": "mFaceRoot",
+        "mFaceJawShaper": "mFaceJaw",
+        "mFaceChin": "mFaceJaw",
+        "mFaceTeethLower": "mFaceJaw",
+        "mFaceTeethUpper": "mFaceJaw",
+        "mFaceTongueBase": "mFaceJaw",
+        "mFaceTongueTip": "mFaceTongueBase",
+
+        # Stirn & Augenbrauen
+        "mFaceForeheadCenter": "mFaceRoot",
+        "mFaceForeheadLeft": "mFaceRoot",
+        "mFaceForeheadRight": "mFaceRoot",
+        "mFaceEyebrowOuterLeft": "mFaceForeheadLeft",
+        "mFaceEyebrowCenterLeft": "mFaceForeheadLeft",
+        "mFaceEyebrowInnerLeft": "mFaceForeheadLeft",
+        "mFaceEyebrowOuterRight": "mFaceForeheadRight",
+        "mFaceEyebrowCenterRight": "mFaceForeheadRight",
+        "mFaceEyebrowInnerRight": "mFaceForeheadRight",
+
+        # Augen
+        "mEyeLeft": "mHead",
+        "mEyeRight": "mHead",
+        "mFaceEyeAltLeft": "mFaceRoot",
+        "mFaceEyeAltRight": "mFaceRoot",
+        "mFaceEyeLidUpperLeft": "mFaceRoot",
+        "mFaceEyeLidLowerLeft": "mFaceRoot",
+        "mFaceEyeLidUpperRight": "mFaceRoot",
+        "mFaceEyeLidLowerRight": "mFaceRoot",
+        "mFaceEyecornerInnerLeft": "mFaceRoot",
+        "mFaceEyecornerInnerRight": "mFaceRoot",
+
+        # Nase
+        "mFaceNoseLeft": "mFaceRoot",
+        "mFaceNoseCenter": "mFaceRoot",
+        "mFaceNoseRight": "mFaceRoot",
+        "mFaceNoseBase": "mFaceRoot",
+        "mFaceNoseBridge": "mFaceRoot",
+
+        # Wangen
+        "mFaceCheekUpperLeft": "mFaceRoot",
+        "mFaceCheekLowerLeft": "mFaceRoot",
+        "mFaceCheekUpperRight": "mFaceRoot",
+        "mFaceCheekLowerRight": "mFaceRoot",
+
+        # Lippen
+        "mFaceLipUpperLeft": "mFaceRoot",
+        "mFaceLipUpperCenter": "mFaceRoot",
+        "mFaceLipUpperRight": "mFaceRoot",
+        "mFaceLipCornerLeft": "mFaceRoot",
+        "mFaceLipCornerRight": "mFaceRoot",
+        "mFaceLipLowerLeft": "mFaceRoot",
+        "mFaceLipLowerCenter": "mFaceRoot",
+        "mFaceLipLowerRight": "mFaceRoot",
+
+        # Ohren
+        "mFaceEar1Left": "mFaceRoot",
+        "mFaceEar2Left": "mFaceEar1Left",
+        "mFaceEar1Right": "mFaceRoot",
+        "mFaceEar2Right": "mFaceEar1Right",
+
+        # Schwanz
+        "mTail1": "mPelvis",
+        "mTail2": "mTail1",
+        "mTail3": "mTail2",
+        "mTail4": "mTail3",
+        "mTail5": "mTail4",
+        "mTail6": "mTail5",
+
+        # Flügel
+        "mWingsRoot": "mChest",
+        "mWing1Left": "mWingsRoot",
+        "mWing2Left": "mWing1Left",
+        "mWing3Left": "mWing2Left",
+        "mWing4Left": "mWing3Left",
+        "mWing4FanLeft": "mWing4Left",
+        "mWing1Right": "mWingsRoot",
+        "mWing2Right": "mWing1Right",
+        "mWing3Right": "mWing2Right",
+        "mWing4Right": "mWing3Right",
+        "mWing4FanRight": "mWing4Right",
+
+        # Hinterbeine
+        "mHindLimbsRoot": "mPelvis",
+        "mHindLimb1Left": "mHindLimbsRoot",
+        "mHindLimb2Left": "mHindLimb1Left",
+        "mHindLimb3Left": "mHindLimb2Left",
+        "mHindLimb4Left": "mHindLimb3Left",
+        "mHindLimb1Right": "mHindLimbsRoot",
+        "mHindLimb2Right": "mHindLimb1Right",
+        "mHindLimb3Right": "mHindLimb2Right",
+        "mHindLimb4Right": "mHindLimb3Right",
+
+        # Groin
+        "mGroin": "mPelvis"
+    }
+    
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            # Validierung der geladenen Daten
+            if not isinstance(data, dict):
+                raise ValueError("Ungültiges JSON-Format")
+            return data
+    except Exception as e:
+        print(f"Fehler: {e}. Verwende Standard-Hierarchie.")
+        return default_structure
+
+# ------------------------------------------------------------------------
+# Bone Hierarchy Repair and Cleanup Functions
+# ------------------------------------------------------------------------
+
+# Hilfsfunktionen
+def load_bone_parents():
+    """Lädt die Bone-Hierarchie aus JSON oder verwendet Default"""
+    addon_dir = os.path.dirname(__file__)
+    filepath = os.path.join(addon_dir, "bone_parents.json")
+    
+    default_structure = {
+        "mPelvis": None,
+        "mSpine1": "mPelvis",
+        "mSpine2": "mSpine1",
+        # ... (der komplette Rest, den du schon hast)
+    }
+
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if not isinstance(data, dict):
+                raise ValueError("Ungültiges JSON-Format")
+            return data
+    except Exception as e:
+        print(f"[WARNUNG] Konnte bone_parents.json nicht laden: {e}")
+        return default_structure
+
+def repair_pairing(armature):
+    """Stellt Parent-Beziehungen anhand der Hierarchie wieder her"""
+    bone_parents = load_bone_parents()
+    bpy.ops.object.mode_set(mode='EDIT')
+    bones = armature.edit_bones
+
+    for bone_name, parent_name in bone_parents.items():
+        if bone_name in bones:
+            bone = bones[bone_name]
+            if parent_name and parent_name in bones:
+                if bone.parent != bones[parent_name]:
+                    bone.parent = bones[parent_name]
+                    bone.use_connect = False
+            elif not parent_name:
+                bone.parent = None
+
+    bpy.ops.object.mode_set(mode='OBJECT')
+    print("[INFO] Bone-Pairing repariert.")
+
+def remove_unwanted_bones(armature, allowed_bones):
+    """Entfernt alle Bones, die nicht in der erlaubten Liste vorkommen"""
+    bpy.ops.object.mode_set(mode='EDIT')
+    bones = armature.edit_bones
+    to_remove = [bone.name for bone in bones if bone.name not in allowed_bones]
+
+    for name in to_remove:
+        bones.remove(bones[name])
+
+    bpy.ops.object.mode_set(mode='OBJECT')
+    print(f"[INFO] {len(to_remove)} unerwünschte Bones entfernt.")
+
+# Operator-Klassen
+class OBJECT_OT_repair_pairing(bpy.types.Operator):
+    """Repariert fehlerhafte Bone-Hierarchien durch korrektes Parenting"""
+    bl_idname = "object.repair_pairing"
+    bl_label = "Repair Pairing"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        armature = context.object
+        if not armature or armature.type != 'ARMATURE':
+            self.report({'ERROR'}, "Bitte ein Armature-Objekt auswählen")
+            return {'CANCELLED'}
+
+        bpy.ops.object.mode_set(mode='EDIT')
+        edited = 0
+
+        for bone in armature.data.edit_bones:
+            if bone.use_connect and bone.parent and bone.head != bone.parent.tail:
+                bone.head = bone.parent.tail
+                edited += 1
+
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+        self.report({'INFO'}, f"{edited} Bones repariert.")
+        return {'FINISHED'}
+
+class OBJECT_OT_remove_unwanted_bones(bpy.types.Operator):
+    """Entfernt unnötige Bones nach benutzerdefinierten Kriterien"""
+    bl_idname = "object.remove_unwanted_bones"
+    bl_label = "Remove Unwanted Bones"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        armature = context.object
+        if not armature or armature.type != 'ARMATURE':
+            self.report({'ERROR'}, "Bitte ein Armature-Objekt auswählen")
+            return {'CANCELLED'}
+
+        bpy.ops.object.mode_set(mode='EDIT')
+        bones = armature.data.edit_bones
+
+        removed = 0
+        unwanted_keywords = ['helper', 'ik', 'twist', 'end', 'toe_end']
+
+        for bone in list(bones):
+            name = bone.name.lower()
+            if any(keyword in name for keyword in unwanted_keywords):
+                bones.remove(bone)
+                removed += 1
+
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+        self.report({'INFO'}, f"{removed} Bones entfernt.")
+        return {'FINISHED'}
+
 # ------------------------------------------------------------------------
 # PROPERTY GROUP (stores addon settings)
 # ------------------------------------------------------------------------
@@ -615,10 +933,36 @@ class OBJECT_OT_rename_mixamo_bones(Operator):
                 continue
 
             pattern = re.compile(f"^{re.escape(prefix)}")
-
+# ausgetauscht
             # Rename bones in Edit Mode
             bpy.context.view_layer.objects.active = armature
             bpy.ops.object.mode_set(mode='EDIT')
+
+            # ---------- RENAME‑LOOP ----------
+            for bone in armature.data.edit_bones:
+                if not pattern.match(bone.name):
+                    skipped += 1
+                    continue
+
+                base_name = pattern.sub("", bone.name)
+                if base_name in bone_map:
+                    new_name = bone_map[base_name]
+                    if new_name in armature.data.edit_bones and armature.data.edit_bones[new_name] != bone:
+                        self.report({'WARNING'}, f"Skipped: {new_name} already exists")
+                        skipped += 1
+                        continue
+                    bone.name = new_name
+                    processed += 1
+            # ----------------------------------
+
+            # zurück in Object‑Mode
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+            # Hilfs‑Operatoren jetzt erst ausführen
+            bpy.ops.object.fix_bone_roll()
+            bpy.ops.object.auto_parenting()
+            bpy.ops.object.apply_rest_pose()
+# ausgetauscht
             
             for bone in armature.data.edit_bones:
                 if not pattern.match(bone.name):
@@ -657,45 +1001,130 @@ class OBJECT_OT_rename_mixamo_bones(Operator):
 # ------------------------------------------------------------------------
 # WEIGHT OPTIMIZATION OPERATOR
 # ------------------------------------------------------------------------
-class OBJECT_OT_optimize_weights(Operator):
-    """Optimizes vertex weights for Second Life compatibility"""
+class OBJECT_OT_fix_bone_roll(Operator):
+    """Setzt alle Bone‑Roll‑Werte auf 0 und richtet Hauptachsen neu aus"""
+    bl_idname = "object.fix_bone_roll"
+    bl_label  = "Fix Bone Roll"
+    bl_options = {'INTERNAL'}
+
+    def execute(self, ctx):
+        arm = next((o for o in ctx.selected_objects if o.type == 'ARMATURE'), None)
+        if not arm:
+            self.report({'ERROR'}, "Keine Armature ausgewählt")
+            return {'CANCELLED'}
+
+        with bpy.context.temp_override(active_object=arm):
+            bpy.ops.object.mode_set(mode='EDIT')
+            for eb in arm.data.edit_bones:
+                eb.roll = 0.0
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+        self.report({'INFO'}, "Bone‑Roll auf 0 gesetzt")
+        return {'FINISHED'}
+
+class OBJECT_OT_apply_rest_pose(Operator):
+    """Überträgt die aktuelle Pose auf die Edit‑Bones (Armature Apply)"""
+    bl_idname = "object.apply_rest_pose"
+    bl_label  = "Apply Rest Pose"
+    bl_options = {'INTERNAL'}
+
+    def execute(self, ctx):
+        arm = ctx.active_object
+        if not arm or arm.type != 'ARMATURE':
+            self.report({'ERROR'}, "Keine Armature aktiv")
+            return {'CANCELLED'}
+
+        bpy.ops.object.mode_set(mode='POSE')
+        bpy.ops.pose.armature_apply()
+        bpy.ops.object.mode_set(mode='OBJECT')
+        self.report({'INFO'}, "Rest‑Pose angewendet")
+        return {'FINISHED'}
+
+# ------------------------------------------------------------------------
+# WEIGHT OPTIMIZATION OPERATOR  (komplett)
+# ------------------------------------------------------------------------
+class OBJECT_OT_optimize_weights(bpy.types.Operator):
+    """Optimiert Vertex‑Gewichte und kann Gewichte auf mehrere Bento‑Bones aufteilen"""
     bl_idname = "object.optimize_weights"
-    bl_label = "Optimize Weights"
+    bl_label  = "Optimize Weights"
     bl_options = {'REGISTER', 'UNDO'}
     
+    # ----------  Haupt‑Execute  ----------
     def execute(self, context):
         props = context.scene.bone_mapping_props
         
         for obj in context.selected_objects:
             if obj.type != 'MESH':
                 continue
-                
-            for vg in obj.vertex_groups:
-                to_remove = []
-                for v in obj.data.vertices:
-                    try:
-                        # Check if vertex has weight in this group
-                        if vg.weight(v.index) < props.weight_threshold:
-                            to_remove.append(v.index)
-                    except RuntimeError:
-                        # Vertex not in group, skip it
-                        continue
-                
-                # Remove vertices below threshold in batch
-                if to_remove:
-                    vg.remove(to_remove)
-                    
-            # Harden joints if enabled
+            
+            # 1. Niedrige Gewichte entfernen  ------------------------------
+            self.cleanup_small_weights(obj, props.weight_threshold)
+            
+            # 2. Optionale Gelenk‑Härtung ----------------------------------
             if props.harden_joints:
                 self.harden_joints(obj)
+            
+            # 3. Beispiel für Gewicht‑Split  ------------------------------
+            #    (falls du Finger‑Weights auf mehrere Bento‑Bones teilen willst)
+            #    -> hier exemplarisch: Mixamo‑"Head" → mHead & mSkull
+            if "Head" in obj.vertex_groups:
+                self.split_group(
+                    mesh=obj,
+                    src="Head",
+                    dst1="mHead",
+                    dst2="mSkull",
+                    ratio=0.7          # 70 % auf mHead, 30 % auf mSkull
+                )
         
+        self.report({'INFO'}, "Weights optimiert")
         return {'FINISHED'}
-
+    
+    # ----------  Helfer: kleine Gewichte löschen  ----------
+    def cleanup_small_weights(self, mesh_obj, threshold):
+        for vg in mesh_obj.vertex_groups:
+            to_remove = [
+                v.index
+                for v in mesh_obj.data.vertices
+                if vg.index in [g.group for g in v.groups]
+                and vg.weight(v.index) < threshold
+            ]
+            if to_remove:
+                vg.remove(to_remove)
+    
+    # ----------  Helfer: Gelenke härten (Platzhalter)  ----------
     def harden_joints(self, mesh_obj):
-        """Creates sharper transitions at key joints"""
-        # This is a placeholder - actual implementation would require
-        # modifying the weight paint data directly
-        print(f"Weight optimization would be applied to {mesh_obj.name}")
+        # Hier könntest du z.B. Gewichte an Ellenbogen/Knie stärker auf den
+        # entsprechenden Bone fokussieren.  Implementation bleibt dir überlassen.
+        print(f"Harden joints on {mesh_obj.name}")
+    
+    # ----------  NEU: Gewichte aufteilen  ----------
+    def split_group(self, mesh, src, dst1, dst2, ratio=0.5):
+        """
+        Teilt die Gewichte des Vertex‑Groups *src* im Verhältnis *ratio*
+        auf zwei Ziel‑Groups *dst1* und *dst2* auf.
+        """
+        vg_src  = mesh.vertex_groups.get(src)
+        if not vg_src:
+            return
+        
+        vg_dst1 = mesh.vertex_groups.get(dst1)
+        if not vg_dst1:
+            vg_dst1 = mesh.vertex_groups.new(name=dst1)
+        
+        vg_dst2 = mesh.vertex_groups.get(dst2)
+        if not vg_dst2:
+            vg_dst2 = mesh.vertex_groups.new(name=dst2)
+
+        for v in mesh.data.vertices:
+            try:
+                w = vg_src.weight(v.index)
+                if w > 0:
+                    vg_dst1.add([v.index], w * ratio, 'ADD')
+                    vg_dst2.add([v.index], w * (1 - ratio), 'ADD')
+            except RuntimeError:
+                # Vertex nicht im src‑Group – überspringen
+                continue
+
 
 # ------------------------------------------------------------------------
 # Auto Parenting and Auto Weighting Section
@@ -740,40 +1169,102 @@ class OBJECT_OT_auto_parenting(bpy.types.Operator):
 # ------------------------------------------------------------------------
 # Weight Preset Save/Load Section
 # ------------------------------------------------------------------------
+
 class OBJECT_OT_save_weights_json(bpy.types.Operator, ExportHelper):
-    """Speichert Vertex-Gewichtungen in JSON-Datei"""
+    """Speichert Vertex-Gewichtungen aller Meshes als JSON-Datei"""
     bl_idname = "object.save_weights_json"
     bl_label = "Weights exportieren"
-    bl_description = "Speichert alle Vertex-Gewichte als JSON"
+    bl_description = "Speichert alle Vertex-Gewichte aller Meshes als JSON"
     filename_ext = ".json"
-    
+
     filter_glob: bpy.props.StringProperty(default="*.json", options={'HIDDEN'})
 
-    def execute(self, context):
+    def find_meshes(self, context):
         obj = context.active_object
-        if not obj or obj.type != 'MESH':
-            self.report({'ERROR'}, "Kein Mesh-Objekt ausgewählt")
-            return {'CANCELLED'}
-            
-        weights = {}
-        mesh = obj.data
-        
-        for vg in obj.vertex_groups:
-            weights[vg.name] = {}
-            for v in mesh.vertices:
-                try:
-                    w = vg.weight(v.index)
-                    if w > 0.0:  # Nur relevante Weights speichern
-                        weights[vg.name][str(v.index)] = w
-                except:
-                    continue
-        
-        with open(self.filepath, 'w') as f:
-            json.dump(weights, f, indent=2)
-            
-        self.report({'INFO'}, f"Weights exportiert: {os.path.basename(self.filepath)}")
-        return {'FINISHED'}
+        meshes = []
 
+        if obj:
+            if obj.type == 'MESH' and obj.vertex_groups:
+                meshes.append(obj)
+            elif obj.type == 'ARMATURE':
+                for child in obj.children:
+                    if child.type == 'MESH' and child.vertex_groups:
+                        meshes.append(child)
+
+        # Fallback: Suche nach allen Meshes mit Vertex Groups in der Szene
+        if not meshes:
+            for o in context.scene.objects:
+                if o.type == 'MESH' and o.vertex_groups:
+                    meshes.append(o)
+
+        return meshes
+
+    def execute(self, context):
+        meshes = self.find_meshes(context)
+
+        if not meshes:
+            self.report({'ERROR'}, "Kein Mesh mit Vertex Groups gefunden")
+            return {'CANCELLED'}
+
+        weights_data = {}
+
+        for obj in meshes:
+            obj_weights = {}
+            mesh = obj.data
+
+            for vg in obj.vertex_groups:
+                group_weights = {}
+                for v in mesh.vertices:
+                    try:
+                        w = vg.weight(v.index)
+                        if w > 0.0:
+                            group_weights[str(v.index)] = w
+                    except RuntimeError:
+                        continue
+                if group_weights:
+                    obj_weights[vg.name] = group_weights
+
+            if obj_weights:
+                weights_data[obj.name] = obj_weights
+
+        if not weights_data:
+            self.report({'ERROR'}, "Keine Gewichte gefunden")
+            return {'CANCELLED'}
+
+        try:
+            with open(self.filepath, 'w', encoding='utf-8') as f:
+                json.dump(weights_data, f, indent=2)
+            self.report({'INFO'}, f"Weights exportiert: {os.path.basename(self.filepath)}")
+            return {'FINISHED'}
+        except Exception as e:
+            self.report({'ERROR'}, f"Fehler beim Schreiben der Datei: {str(e)}")
+            return {'CANCELLED'}
+
+
+class OBJECT_OT_export_opensim_dae(Operator):
+    """Exportiert ausgewählte Objekte als SL/OpenSim‑taugliche DAE"""
+    bl_idname = "export_scene.opensim_dae"
+    bl_label  = "Export DAE (OpenSim)"
+    bl_options = {'REGISTER'}
+
+    filepath: StringProperty(subtype="FILE_PATH")
+
+    def execute(self, ctx):
+        if not self.filepath.lower().endswith(".dae"):
+            self.filepath += ".dae"
+
+        bpy.ops.wm.collada_export(
+            filepath=self.filepath,
+            selected=True,
+            apply_armature_deform=True,
+            export_armatures=True,
+            export_meshes=True,
+            deform_bones_only=False,
+            keep_bind_info=True,
+            second_life=True      # <‑‑ wichtig!
+        )
+        self.report({'INFO'}, f"DAE exportiert nach {self.filepath}")
+        return {'FINISHED'}
 
 class OBJECT_OT_load_weights_json(bpy.types.Operator, ImportHelper):
     """Lädt Vertex-Gewichtungen aus JSON-Datei"""
@@ -961,204 +1452,7 @@ class OBJECT_OT_bone_info(Operator):
         
         return warnings
 
-import os
-import json
-import bpy
-from bpy.types import Operator
-from bpy.props import StringProperty
 
-# ------------------------------------------------------------------------
-# Verbesserte Bone-Struktur Validierung
-# ------------------------------------------------------------------------
-
-def load_bone_parents():
-    """Sicheres Laden der Bone-Hierarchie-Definition"""
-    addon_dir = os.path.dirname(__file__)
-    filepath = os.path.join(addon_dir, "bone_parents.json")
-    
-    default_structure = {
-        "mPelvis": None,
-        "mSpine1": "mPelvis",
-        "mSpine2": "mSpine1",
-        "mSpine3": "mSpine2",
-        "mSpine4": "mSpine3",
-        "mTorso": "mSpine4",
-        "mChest": "mTorso",
-        "mNeck": "mChest",
-        "mHead": "mNeck",
-        "mHeadTop_End": "mHead",
-        "mSkull": "mHead",
-
-        # Arme links
-        "mCollarLeft": "mChest",
-        "mShoulderLeft": "mCollarLeft",
-        "mElbowLeft": "mShoulderLeft",
-        "mWristLeft": "mElbowLeft",
-
-        # Finger links
-        "mHandThumb1Left": "mWristLeft",
-        "mHandThumb2Left": "mHandThumb1Left",
-        "mHandThumb3Left": "mHandThumb2Left",
-        "mHandIndex1Left": "mWristLeft",
-        "mHandIndex2Left": "mHandIndex1Left",
-        "mHandIndex3Left": "mHandIndex2Left",
-        "mHandMiddle1Left": "mWristLeft",
-        "mHandMiddle2Left": "mHandMiddle1Left",
-        "mHandMiddle3Left": "mHandMiddle2Left",
-        "mHandRing1Left": "mWristLeft",
-        "mHandRing2Left": "mHandRing1Left",
-        "mHandRing3Left": "mHandRing2Left",
-        "mHandPinky1Left": "mWristLeft",
-        "mHandPinky2Left": "mHandPinky1Left",
-        "mHandPinky3Left": "mHandPinky2Left",
-
-        # Arme rechts
-        "mCollarRight": "mChest",
-        "mShoulderRight": "mCollarRight",
-        "mElbowRight": "mShoulderRight",
-        "mWristRight": "mElbowRight",
-
-        # Finger rechts
-        "mHandThumb1Right": "mWristRight",
-        "mHandThumb2Right": "mHandThumb1Right",
-        "mHandThumb3Right": "mHandThumb2Right",
-        "mHandIndex1Right": "mWristRight",
-        "mHandIndex2Right": "mHandIndex1Right",
-        "mHandIndex3Right": "mHandIndex2Right",
-        "mHandMiddle1Right": "mWristRight",
-        "mHandMiddle2Right": "mHandMiddle1Right",
-        "mHandMiddle3Right": "mHandMiddle2Right",
-        "mHandRing1Right": "mWristRight",
-        "mHandRing2Right": "mHandRing1Right",
-        "mHandRing3Right": "mHandRing2Right",
-        "mHandPinky1Right": "mWristRight",
-        "mHandPinky2Right": "mHandPinky1Right",
-        "mHandPinky3Right": "mHandPinky2Right",
-
-        # Beine links
-        "mHipLeft": "mPelvis",
-        "mKneeLeft": "mHipLeft",
-        "mAnkleLeft": "mKneeLeft",
-        "mFootLeft": "mAnkleLeft",
-        "mToeLeft": "mFootLeft",
-        "mToeLeftEnd": "mToeLeft",
-
-        # Beine rechts
-        "mHipRight": "mPelvis",
-        "mKneeRight": "mHipRight",
-        "mAnkleRight": "mKneeRight",
-        "mFootRight": "mAnkleRight",
-        "mToeRight": "mFootRight",
-        "mToeRightEnd": "mToeRight",
-
-        # Gesicht
-        "mFaceRoot": "mHead",
-        "mFaceJaw": "mFaceRoot",
-        "mFaceJawShaper": "mFaceJaw",
-        "mFaceChin": "mFaceJaw",
-        "mFaceTeethLower": "mFaceJaw",
-        "mFaceTeethUpper": "mFaceJaw",
-        "mFaceTongueBase": "mFaceJaw",
-        "mFaceTongueTip": "mFaceTongueBase",
-
-        # Stirn & Augenbrauen
-        "mFaceForeheadCenter": "mFaceRoot",
-        "mFaceForeheadLeft": "mFaceRoot",
-        "mFaceForeheadRight": "mFaceRoot",
-        "mFaceEyebrowOuterLeft": "mFaceForeheadLeft",
-        "mFaceEyebrowCenterLeft": "mFaceForeheadLeft",
-        "mFaceEyebrowInnerLeft": "mFaceForeheadLeft",
-        "mFaceEyebrowOuterRight": "mFaceForeheadRight",
-        "mFaceEyebrowCenterRight": "mFaceForeheadRight",
-        "mFaceEyebrowInnerRight": "mFaceForeheadRight",
-
-        # Augen
-        "mEyeLeft": "mHead",
-        "mEyeRight": "mHead",
-        "mFaceEyeAltLeft": "mFaceRoot",
-        "mFaceEyeAltRight": "mFaceRoot",
-        "mFaceEyeLidUpperLeft": "mFaceRoot",
-        "mFaceEyeLidLowerLeft": "mFaceRoot",
-        "mFaceEyeLidUpperRight": "mFaceRoot",
-        "mFaceEyeLidLowerRight": "mFaceRoot",
-        "mFaceEyecornerInnerLeft": "mFaceRoot",
-        "mFaceEyecornerInnerRight": "mFaceRoot",
-
-        # Nase
-        "mFaceNoseLeft": "mFaceRoot",
-        "mFaceNoseCenter": "mFaceRoot",
-        "mFaceNoseRight": "mFaceRoot",
-        "mFaceNoseBase": "mFaceRoot",
-        "mFaceNoseBridge": "mFaceRoot",
-
-        # Wangen
-        "mFaceCheekUpperLeft": "mFaceRoot",
-        "mFaceCheekLowerLeft": "mFaceRoot",
-        "mFaceCheekUpperRight": "mFaceRoot",
-        "mFaceCheekLowerRight": "mFaceRoot",
-
-        # Lippen
-        "mFaceLipUpperLeft": "mFaceRoot",
-        "mFaceLipUpperCenter": "mFaceRoot",
-        "mFaceLipUpperRight": "mFaceRoot",
-        "mFaceLipCornerLeft": "mFaceRoot",
-        "mFaceLipCornerRight": "mFaceRoot",
-        "mFaceLipLowerLeft": "mFaceRoot",
-        "mFaceLipLowerCenter": "mFaceRoot",
-        "mFaceLipLowerRight": "mFaceRoot",
-
-        # Ohren
-        "mFaceEar1Left": "mFaceRoot",
-        "mFaceEar2Left": "mFaceEar1Left",
-        "mFaceEar1Right": "mFaceRoot",
-        "mFaceEar2Right": "mFaceEar1Right",
-
-        # Schwanz
-        "mTail1": "mPelvis",
-        "mTail2": "mTail1",
-        "mTail3": "mTail2",
-        "mTail4": "mTail3",
-        "mTail5": "mTail4",
-        "mTail6": "mTail5",
-
-        # Flügel
-        "mWingsRoot": "mChest",
-        "mWing1Left": "mWingsRoot",
-        "mWing2Left": "mWing1Left",
-        "mWing3Left": "mWing2Left",
-        "mWing4Left": "mWing3Left",
-        "mWing4FanLeft": "mWing4Left",
-        "mWing1Right": "mWingsRoot",
-        "mWing2Right": "mWing1Right",
-        "mWing3Right": "mWing2Right",
-        "mWing4Right": "mWing3Right",
-        "mWing4FanRight": "mWing4Right",
-
-        # Hinterbeine
-        "mHindLimbsRoot": "mPelvis",
-        "mHindLimb1Left": "mHindLimbsRoot",
-        "mHindLimb2Left": "mHindLimb1Left",
-        "mHindLimb3Left": "mHindLimb2Left",
-        "mHindLimb4Left": "mHindLimb3Left",
-        "mHindLimb1Right": "mHindLimbsRoot",
-        "mHindLimb2Right": "mHindLimb1Right",
-        "mHindLimb3Right": "mHindLimb2Right",
-        "mHindLimb4Right": "mHindLimb3Right",
-
-        # Groin
-        "mGroin": "mPelvis"
-    }
-    
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            # Validierung der geladenen Daten
-            if not isinstance(data, dict):
-                raise ValueError("Ungültiges JSON-Format")
-            return data
-    except Exception as e:
-        print(f"Fehler: {e}. Verwende Standard-Hierarchie.")
-        return default_structure
 
 class OBJECT_OT_analyze_bone_structure(Operator):
     """Erweiterte Bone-Struktur Analyse"""
@@ -1507,10 +1801,18 @@ class OBJECT_PT_mixamo_bone_panel(Panel):
         row = box.row()
         row.operator("object.analyze_bone_structure", text="Analyse starten", icon='ZOOM_IN')
 
-        # Reparatur-Block (mit Warnhinweis)
+        # Reparatur-Block
         box = layout.box()
         box.label(text="Bone-Struktur reparieren", icon='TOOL_SETTINGS')
         box.operator("object.fix_bone_structure", text="Struktur reparieren", icon='MODIFIER')
+
+        # Bone Hierarchy Repair and Cleanup Section
+        box = layout.box()
+        box.label(text="Bone-Hierarchie reparieren und aufräumen", icon="BONE_DATA")
+        row = box.row()
+        row.operator("object.repair_pairing", icon="CONSTRAINT_BONE")
+        row.operator("object.remove_unwanted_bones", icon="TRASH")
+
 
         # Bone Analysis Section
         box = layout.box()
@@ -1546,6 +1848,12 @@ def register():
     bpy.utils.register_class(ARMATURE_OT_validate_rig)
     bpy.utils.register_class(OBJECT_OT_apply_all_transforms)
 
+    bpy.utils.register_class(OBJECT_OT_fix_bone_roll)
+    bpy.utils.register_class(OBJECT_OT_apply_rest_pose)
+    bpy.utils.register_class(OBJECT_OT_export_opensim_dae)
+
+    bpy.utils.register_class(OBJECT_OT_repair_pairing)
+    bpy.utils.register_class(OBJECT_OT_remove_unwanted_bones)
     
     bpy.types.Scene.bone_mapping_props = PointerProperty(
         type=BoneMappingProperties)
@@ -1568,6 +1876,13 @@ def unregister():
 
     bpy.utils.unregister_class(ARMATURE_OT_validate_rig)
     bpy.utils.unregister_class(OBJECT_OT_apply_all_transforms)
+
+    bpy.utils.unregister_class(OBJECT_OT_export_opensim_dae)
+    bpy.utils.unregister_class(OBJECT_OT_apply_rest_pose)
+    bpy.utils.unregister_class(OBJECT_OT_fix_bone_roll)
+
+    bpy.utils.unregister_class(OBJECT_OT_remove_unwanted_bones)
+    bpy.utils.unregister_class(OBJECT_OT_repair_pairing)
     
     del bpy.types.Scene.bone_mapping_props
 
