@@ -1339,28 +1339,58 @@ class OBJECT_OT_save_weights_json(bpy.types.Operator, ExportHelper):
             return {'CANCELLED'}
 
 
+# class OBJECT_OT_export_opensim_dae(Operator):
+#     """Exportiert ausgewählte Objekte als SL/OpenSim‑taugliche DAE"""
+#     bl_idname = "export_scene.opensim_dae"
+#     bl_label  = "Export DAE (OpenSim)"
+#     bl_options = {'REGISTER'}
+
+#     filepath: StringProperty(subtype="FILE_PATH")
+
+#     def execute(self, ctx):
+#         if not self.filepath.lower().endswith(".dae"):
+#             self.filepath += ".dae"
+
+#         bpy.ops.wm.collada_export(
+#             filepath=self.filepath,
+#             selected=True,
+#             apply_armature_deform=True,
+#             export_armatures=True,
+#             export_meshes=True,
+#             deform_bones_only=False,
+#             keep_bind_info=True,
+#             second_life=True      # <‑‑ wichtig!
+#         )
+#         self.report({'INFO'}, f"DAE exportiert nach {self.filepath}")
+#         return {'FINISHED'}
+
 class OBJECT_OT_export_opensim_dae(Operator):
     """Exportiert ausgewählte Objekte als SL/OpenSim‑taugliche DAE"""
     bl_idname = "export_scene.opensim_dae"
-    bl_label  = "Export DAE (OpenSim)"
+    bl_label = "Export DAE (OpenSim)"
     bl_options = {'REGISTER'}
 
     filepath: StringProperty(subtype="FILE_PATH")
 
-    def execute(self, ctx):
+    def execute(self, context):
         if not self.filepath.lower().endswith(".dae"):
             self.filepath += ".dae"
 
+        # Aktuelle Export-Einstellungen für Collada in Blender 4.4
         bpy.ops.wm.collada_export(
             filepath=self.filepath,
             selected=True,
-            apply_armature_deform=True,
             export_armatures=True,
             export_meshes=True,
-            deform_bones_only=False,
-            keep_bind_info=True,
-            second_life=True      # <‑‑ wichtig!
+            export_uvs=True,
+            export_normals=True,
+            export_materials=True,
+            apply_modifiers=True,
+            triangulate=True,
+            use_object_instantiation=False,
+            keep_bind_info=True
         )
+        
         self.report({'INFO'}, f"DAE exportiert nach {self.filepath}")
         return {'FINISHED'}
 
@@ -2009,7 +2039,7 @@ class OBJECT_PT_mixamo_bone_panel(Panel):
         # Transform & Export
         col = final_box.column(align=True)
         col.operator("object.apply_all_transforms", text="Apply All Transforms", icon='CON_LOCLIKE')
-        col.operator("export_scene.opensim_dae", text="Export OpenSim DAE", icon='EXPORT')
+        #col.operator("export_scene.opensim_dae", text="Export OpenSim DAE", icon='EXPORT')
 
 # ------------------------------------------------------------------------
 # REGISTRATION
