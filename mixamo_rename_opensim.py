@@ -887,6 +887,117 @@ class OBJECT_OT_export_mapping(Operator, ExportHelper):
 # ------------------------------------------------------------------------
 # MAIN RENAMING OPERATOR
 # ------------------------------------------------------------------------
+# class OBJECT_OT_rename_mixamo_bones(Operator):
+#     """Main operator that performs the bone renaming"""
+#     bl_idname = "object.rename_mixamo_bones"
+#     bl_label = "Convert Mixamo Rig"
+#     bl_options = {'REGISTER', 'UNDO'}
+
+#     def detect_prefix(self, armature):
+#         """Automatically detects Mixamo prefix in armature"""
+#         prefixes = ['mixamorig:', 'mixamorig1:', 'mixamorig2:']
+#         for bone in armature.data.bones:
+#             for prefix in prefixes:
+#                 if bone.name.startswith(prefix):
+#                     return prefix
+#         return None
+
+#     def get_prefix(self, context, armature):
+#         """Gets prefix based on user settings"""
+#         props = context.scene.bone_mapping_props
+#         if props.prefix_mode == 'AUTO':
+#             return self.detect_prefix(armature)
+#         elif props.prefix_mode == 'MANUAL':
+#             return props.manual_prefix
+#         return props.custom_prefix
+
+#     # execute was? execute3
+#     def execute(self, context):
+#         props = context.scene.bone_mapping_props
+        
+#         # Get current mapping
+#         if props.preset == 'CUSTOM':
+#             bone_map = context.scene.get('custom_bone_map', {})
+#         else:
+#             bone_map = PRESETS[props.preset]
+
+#         processed = 0
+#         skipped = 0
+#         armatures = [obj for obj in context.selected_objects if obj.type == 'ARMATURE']
+#         meshes = [obj for obj in context.selected_objects if obj.type == 'MESH']
+
+#         for armature in armatures:
+#             prefix = self.get_prefix(context, armature)
+#             if not prefix:
+#                 self.report({'WARNING'}, f"No Mixamo prefix found in {armature.name}")
+#                 continue
+
+#             pattern = re.compile(f"^{re.escape(prefix)}")
+# # ausgetauscht
+#             # Rename bones in Edit Mode
+#             bpy.context.view_layer.objects.active = armature
+#             bpy.ops.object.mode_set(mode='EDIT')
+
+#             # ---------- RENAME‑LOOP ----------
+#             for bone in armature.data.edit_bones:
+#                 if not pattern.match(bone.name):
+#                     skipped += 1
+#                     continue
+
+#                 base_name = pattern.sub("", bone.name)
+#                 if base_name in bone_map:
+#                     new_name = bone_map[base_name]
+#                     if new_name in armature.data.edit_bones and armature.data.edit_bones[new_name] != bone:
+#                         self.report({'WARNING'}, f"Skipped: {new_name} already exists")
+#                         skipped += 1
+#                         continue
+#                     bone.name = new_name
+#                     processed += 1
+#             # ----------------------------------
+
+#             # zurück in Object‑Mode
+#             bpy.ops.object.mode_set(mode='OBJECT')
+
+#             # Hilfs‑Operatoren jetzt erst ausführen
+#             bpy.ops.object.fix_bone_roll()
+#             bpy.ops.object.auto_parenting()
+#             bpy.ops.object.apply_rest_pose()
+# # ausgetauscht
+            
+#             for bone in armature.data.edit_bones:
+#                 if not pattern.match(bone.name):
+#                     skipped += 1
+#                     continue
+                    
+#                 base_name = pattern.sub("", bone.name)
+                
+#                 if base_name in bone_map:
+#                     new_name = bone_map[base_name]
+                    
+#                     # Skip if name already exists (unless it's the same bone)
+#                     if new_name in armature.data.edit_bones:
+#                         if armature.data.edit_bones[new_name] != bone:
+#                             self.report({'WARNING'}, f"Skipped: {new_name} already exists")
+#                             skipped += 1
+#                             continue
+                            
+#                     bone.name = new_name
+#                     processed += 1
+            
+#             bpy.ops.object.mode_set(mode='OBJECT')
+            
+#             # Rename vertex groups in child meshes
+#             for mesh in meshes:
+#                 if mesh.parent == armature:
+#                     for vg in mesh.vertex_groups:
+#                         if pattern.match(vg.name):
+#                             base_name = pattern.sub("", vg.name)
+#                             if base_name in bone_map:
+#                                 vg.name = bone_map[base_name]
+
+#         self.report({'INFO'}, f"Renamed {processed} bones, skipped {skipped}")
+#         return {'FINISHED'}
+
 class OBJECT_OT_rename_mixamo_bones(Operator):
     """Main operator that performs the bone renaming"""
     bl_idname = "object.rename_mixamo_bones"
@@ -911,7 +1022,6 @@ class OBJECT_OT_rename_mixamo_bones(Operator):
             return props.manual_prefix
         return props.custom_prefix
 
-    # execute was? execute3
     def execute(self, context):
         props = context.scene.bone_mapping_props
         
@@ -933,67 +1043,55 @@ class OBJECT_OT_rename_mixamo_bones(Operator):
                 continue
 
             pattern = re.compile(f"^{re.escape(prefix)}")
-# ausgetauscht
-            # Rename bones in Edit Mode
-            bpy.context.view_layer.objects.active = armature
-            bpy.ops.object.mode_set(mode='EDIT')
-
-            # ---------- RENAME‑LOOP ----------
-            for bone in armature.data.edit_bones:
-                if not pattern.match(bone.name):
-                    skipped += 1
-                    continue
-
-                base_name = pattern.sub("", bone.name)
-                if base_name in bone_map:
-                    new_name = bone_map[base_name]
-                    if new_name in armature.data.edit_bones and armature.data.edit_bones[new_name] != bone:
-                        self.report({'WARNING'}, f"Skipped: {new_name} already exists")
+            
+            # Store original active object
+            original_active = context.view_layer.objects.active
+            
+            try:
+                # Set armature active and enter edit mode
+                context.view_layer.objects.active = armature
+                bpy.ops.object.mode_set(mode='EDIT')
+                
+                # Single rename loop
+                for bone in armature.data.edit_bones:
+                    if not pattern.match(bone.name):
                         skipped += 1
                         continue
-                    bone.name = new_name
-                    processed += 1
-            # ----------------------------------
 
-            # zurück in Object‑Mode
-            bpy.ops.object.mode_set(mode='OBJECT')
-
-            # Hilfs‑Operatoren jetzt erst ausführen
-            bpy.ops.object.fix_bone_roll()
-            bpy.ops.object.auto_parenting()
-            bpy.ops.object.apply_rest_pose()
-# ausgetauscht
-            
-            for bone in armature.data.edit_bones:
-                if not pattern.match(bone.name):
-                    skipped += 1
-                    continue
-                    
-                base_name = pattern.sub("", bone.name)
+                    base_name = pattern.sub("", bone.name)
+                    if base_name in bone_map:
+                        new_name = bone_map[base_name]
+                        
+                        # Skip if name exists (unless it's the same bone)
+                        if new_name in armature.data.edit_bones:
+                            if armature.data.edit_bones[new_name] != bone:
+                                self.report({'WARNING'}, f"Skipped: {new_name} already exists")
+                                skipped += 1
+                                continue
+                                
+                        bone.name = new_name
+                        processed += 1
                 
-                if base_name in bone_map:
-                    new_name = bone_map[base_name]
-                    
-                    # Skip if name already exists (unless it's the same bone)
-                    if new_name in armature.data.edit_bones:
-                        if armature.data.edit_bones[new_name] != bone:
-                            self.report({'WARNING'}, f"Skipped: {new_name} already exists")
-                            skipped += 1
-                            continue
-                            
-                    bone.name = new_name
-                    processed += 1
+                # Return to object mode before helper ops
+                bpy.ops.object.mode_set(mode='OBJECT')
+                
+                # Execute helper operators
+                bpy.ops.object.fix_bone_roll()
+                bpy.ops.object.auto_parenting()
+                bpy.ops.object.apply_rest_pose()
+                
+                # Rename vertex groups
+                for mesh in meshes:
+                    if mesh.parent == armature:
+                        for vg in mesh.vertex_groups:
+                            if pattern.match(vg.name):
+                                base_name = pattern.sub("", vg.name)
+                                if base_name in bone_map:
+                                    vg.name = bone_map[base_name]
             
-            bpy.ops.object.mode_set(mode='OBJECT')
-            
-            # Rename vertex groups in child meshes
-            for mesh in meshes:
-                if mesh.parent == armature:
-                    for vg in mesh.vertex_groups:
-                        if pattern.match(vg.name):
-                            base_name = pattern.sub("", vg.name)
-                            if base_name in bone_map:
-                                vg.name = bone_map[base_name]
+            finally:
+                # Restore original active object
+                context.view_layer.objects.active = original_active
 
         self.report({'INFO'}, f"Renamed {processed} bones, skipped {skipped}")
         return {'FINISHED'}
@@ -1742,6 +1840,89 @@ class OBJECT_OT_apply_all_transforms(Operator):
 # ------------------------------------------------------------------------
 # UI PANEL
 # ------------------------------------------------------------------------
+# class OBJECT_PT_mixamo_bone_panel(Panel):
+#     """Creates the UI panel in the 3D view sidebar"""
+#     bl_label = "Mixamo to OpenSim"
+#     bl_idname = "OBJECT_PT_mixamo_bone_panel"
+#     bl_space_type = 'VIEW_3D'
+#     bl_region_type = 'UI'
+#     bl_category = 'Mixamo Tools'
+    
+#     def draw(self, context):
+#         layout = self.layout
+#         props = context.scene.bone_mapping_props
+        
+#         # Bone Mapping Section
+#         box = layout.box()
+#         box.label(text="Bone Mapping")
+#         box.prop(props, "preset", text="Preset")
+        
+#         # Prefix Options
+#         box.prop(props, "prefix_mode", text="Prefix Handling")
+#         if props.prefix_mode == 'MANUAL':
+#             box.prop(props, "manual_prefix")
+#         elif props.prefix_mode == 'CUSTOM':
+#             box.prop(props, "custom_prefix")
+        
+#         # Import/Export Buttons
+#         row = box.row()
+#         row.operator("object.import_mapping", text="Import", icon='IMPORT')
+#         row.operator("object.export_mapping", text="Export", icon='EXPORT')
+        
+#         # Main Conversion Button
+#         box.operator("object.rename_mixamo_bones", text="Convert Rig", icon='ARMATURE_DATA')
+        
+#         # Weight Optimization Section
+#         box = layout.box()
+#         box.label(text="Weight Optimization")
+#         box.prop(props, "weight_threshold")
+#         box.prop(props, "harden_joints")
+#         box.operator("object.optimize_weights", text="Optimize Weights", icon='MOD_VERTEX_WEIGHT')
+
+#         # Auto Parenting and Auto Weighting Section
+#         box = layout.box()
+#         box.label(text="Auto-Rigging Funktionen")
+#         box.operator("object.auto_parenting", text="Knochen automatisch parenten", icon='CONSTRAINT_BONE')
+#         box.operator("object.auto_weighting", text="Gewichtung automatisch berechnen", icon='MOD_VERTEX_WEIGHT')
+
+#         # Weight Presets Section
+#         box = layout.box()
+#         box.label(text="Weight Presets", icon='MOD_VERTEX_WEIGHT')
+#         row = box.row()
+#         row.operator("object.save_weights_json", icon='EXPORT')
+#         row.operator("object.load_weights_json", icon='IMPORT')
+#         box.operator("object.auto_weighting", icon='AUTO')
+        
+#         # Analyse-Block
+#         box = layout.box()
+#         box.label(text="Bone-Struktur prüfen", icon='BONE_DATA')
+#         row = box.row()
+#         row.operator("object.analyze_bone_structure", text="Analyse starten", icon='ZOOM_IN')
+
+#         # Reparatur-Block
+#         box = layout.box()
+#         box.label(text="Bone-Struktur reparieren", icon='TOOL_SETTINGS')
+#         box.operator("object.fix_bone_structure", text="Struktur reparieren", icon='MODIFIER')
+
+#         # Bone Hierarchy Repair and Cleanup Section
+#         box = layout.box()
+#         box.label(text="Bone-Hierarchie reparieren und aufräumen", icon="BONE_DATA")
+#         row = box.row()
+#         row.operator("object.repair_pairing", icon="CONSTRAINT_BONE")
+#         row.operator("object.remove_unwanted_bones", icon="TRASH")
+
+#         # Bone Analysis Section
+#         box = layout.box()
+#         box.label(text="Bone Analysis", icon='BONE_DATA')
+#         col = box.column(align=True)
+#         col.operator("armature.bone_info", text="Show Bone Info", icon='INFO')
+#         col.operator("armature.validate_rig", text="Validate Rigging", icon='CHECKMARK')
+
+#         # Apply All Transforms Button
+#         box = layout.box()
+#         box.label(text="Apply All Transforms", icon='CON_LOCLIKE')
+#         box.operator("object.apply_all_transforms", icon='CON_LOCLIKE')
+
 class OBJECT_PT_mixamo_bone_panel(Panel):
     """Creates the UI panel in the 3D view sidebar"""
     bl_label = "Mixamo to OpenSim"
@@ -1749,82 +1930,86 @@ class OBJECT_PT_mixamo_bone_panel(Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = 'Mixamo Tools'
+    bl_options = {'DEFAULT_CLOSED'}
     
     def draw(self, context):
         layout = self.layout
         props = context.scene.bone_mapping_props
         
-        # Bone Mapping Section
-        box = layout.box()
-        box.label(text="Bone Mapping")
-        box.prop(props, "preset", text="Preset")
+        # ===== 1. CONFIGURATION SECTION =====
+        config_box = layout.box()
+        config_box.label(text="1. Configuration", icon='SETTINGS')
         
-        # Prefix Options
-        box.prop(props, "prefix_mode", text="Prefix Handling")
+        # Preset Selection
+        config_box.prop(props, "preset", text="Rig Preset")
+        
+        # Prefix Handling
+        row = config_box.row()
+        row.prop(props, "prefix_mode", text="Prefix Handling")
         if props.prefix_mode == 'MANUAL':
-            box.prop(props, "manual_prefix")
+            config_box.prop(props, "manual_prefix")
         elif props.prefix_mode == 'CUSTOM':
-            box.prop(props, "custom_prefix")
+            config_box.prop(props, "custom_prefix")
         
-        # Import/Export Buttons
-        row = box.row()
-        row.operator("object.import_mapping", text="Import", icon='IMPORT')
-        row.operator("object.export_mapping", text="Export", icon='EXPORT')
+        # Import/Export Mappings
+        row = config_box.row(align=True)
+        row.operator("object.import_mapping", text="Load Preset", icon='IMPORT')
+        row.operator("object.export_mapping", text="Save Preset", icon='EXPORT')
+        
+        # ===== 2. CONVERSION SECTION =====
+        convert_box = layout.box()
+        convert_box.label(text="2. Conversion", icon='ARMATURE_DATA')
         
         # Main Conversion Button
-        box.operator("object.rename_mixamo_bones", text="Convert Rig", icon='ARMATURE_DATA')
+        convert_box.operator("object.rename_mixamo_bones", text="Convert Rig", icon='ARMATURE_DATA')
         
-        # Weight Optimization Section
-        box = layout.box()
-        box.label(text="Weight Optimization")
-        box.prop(props, "weight_threshold")
-        box.prop(props, "harden_joints")
-        box.operator("object.optimize_weights", text="Optimize Weights", icon='MOD_VERTEX_WEIGHT')
-
-        # Auto Parenting and Auto Weighting Section
-        box = layout.box()
-        box.label(text="Auto-Rigging Funktionen")
-        box.operator("object.auto_parenting", text="Knochen automatisch parenten", icon='CONSTRAINT_BONE')
-        box.operator("object.auto_weighting", text="Gewichtung automatisch berechnen", icon='MOD_VERTEX_WEIGHT')
-
-        # Weight Presets Section
-        box = layout.box()
-        box.label(text="Weight Presets", icon='MOD_VERTEX_WEIGHT')
-        row = box.row()
-        row.operator("object.save_weights_json", icon='EXPORT')
-        row.operator("object.load_weights_json", icon='IMPORT')
-        box.operator("object.auto_weighting", icon='AUTO')
+        # Bone Structure Tools
+        col = convert_box.column(align=True)
+        col.operator("object.auto_parenting", text="Fix Bone Parenting", icon='CONSTRAINT_BONE')
+        col.operator("object.fix_bone_roll", text="Fix Bone Rolls", icon='BONE_DATA')
+        col.operator("object.apply_rest_pose", text="Apply Rest Pose", icon='POSE_HLT')
         
-        # Analyse-Block
-        box = layout.box()
-        box.label(text="Bone-Struktur prüfen", icon='BONE_DATA')
-        row = box.row()
-        row.operator("object.analyze_bone_structure", text="Analyse starten", icon='ZOOM_IN')
-
-        # Reparatur-Block
-        box = layout.box()
-        box.label(text="Bone-Struktur reparieren", icon='TOOL_SETTINGS')
-        box.operator("object.fix_bone_structure", text="Struktur reparieren", icon='MODIFIER')
-
-        # Bone Hierarchy Repair and Cleanup Section
-        box = layout.box()
-        box.label(text="Bone-Hierarchie reparieren und aufräumen", icon="BONE_DATA")
-        row = box.row()
-        row.operator("object.repair_pairing", icon="CONSTRAINT_BONE")
-        row.operator("object.remove_unwanted_bones", icon="TRASH")
-
-
-        # Bone Analysis Section
-        box = layout.box()
-        box.label(text="Bone Analysis", icon='BONE_DATA')
-        col = box.column(align=True)
-        col.operator("armature.bone_info", text="Show Bone Info", icon='INFO')
-        col.operator("armature.validate_rig", text="Validate Rigging", icon='CHECKMARK')
-
-        # Apply All Transforms Button
-        box = layout.box()
-        box.label(text="Apply All Transforms", icon='CON_LOCLIKE')
-        box.operator("object.apply_all_transforms", icon='CON_LOCLIKE')
+        # ===== 3. WEIGHT PROCESSING =====
+        weight_box = layout.box()
+        weight_box.label(text="3. Weight Processing", icon='MOD_VERTEX_WEIGHT')
+        
+        # Weight Tools
+        weight_box.prop(props, "weight_threshold", slider=True)
+        weight_box.prop(props, "harden_joints")
+        
+        row = weight_box.row(align=True)
+        row.operator("object.optimize_weights", text="Optimize Weights")
+        row.operator("object.auto_weighting", text="Auto Weights")
+        
+        # Weight Presets
+        row = weight_box.row(align=True)
+        row.operator("object.save_weights_json", text="Save Weights", icon='EXPORT')
+        row.operator("object.load_weights_json", text="Load Weights", icon='IMPORT')
+        
+        # ===== 4. VALIDATION & CLEANUP =====
+        validate_box = layout.box()
+        validate_box.label(text="4. Validation & Cleanup", icon='CHECKMARK')
+        
+        # Analysis Tools
+        col = validate_box.column(align=True)
+        col.operator("object.analyze_bone_structure", text="Analyze Structure", icon='ZOOM_IN')
+        col.operator("armature.validate_rig", text="Validate Rig", icon='CHECKMARK')
+        col.operator("armature.bone_info", text="Bone Info", icon='INFO')
+        
+        # Cleanup Tools
+        col = validate_box.column(align=True)
+        col.operator("object.fix_bone_structure", text="Fix Structure", icon='TOOL_SETTINGS')
+        col.operator("object.remove_unwanted_bones", text="Remove Unused Bones", icon='TRASH')
+        col.operator("object.repair_pairing", text="Repair Connections", icon='CONSTRAINT_BONE')
+        
+        # ===== 5. FINALIZATION =====
+        final_box = layout.box()
+        final_box.label(text="5. Finalization", icon='EXPORT')
+        
+        # Transform & Export
+        col = final_box.column(align=True)
+        col.operator("object.apply_all_transforms", text="Apply All Transforms", icon='CON_LOCLIKE')
+        col.operator("export_scene.opensim_dae", text="Export OpenSim DAE", icon='EXPORT')
 
 # ------------------------------------------------------------------------
 # REGISTRATION
