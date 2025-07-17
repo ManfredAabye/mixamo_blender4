@@ -607,6 +607,231 @@ def load_bone_parents():
         print(f"Fehler: {e}. Verwende Standard-Hierarchie.")
         return default_structure
 
+hand_data = {
+    "left": {
+        "mCollarLeft": {
+            "pos": [-0.021, 0.085, 0.165],
+            "rot": [0.0, 0.0, 0.0],
+            "children": {
+                "mShoulderLeft": {
+                    "pos": [0.000, 0.079, -0.000],
+                    "rot": [0.0, 0.0, 0.0],
+                    "children": {
+                        "mElbowLeft": {
+                            "pos": [0.000, 0.248, 0.000],
+                            "rot": [0.0, 0.0, 0.0],
+                            "children": {
+                                "mWristLeft": {
+                                    "pos": [-0.000, 0.205, 0.000],
+                                    "rot": [0.0, 0.0, 0.0],
+                                    "children": {
+                                        "mHandMiddle1Left": {
+                                            "pos": [0.013, 0.101, 0.015],
+                                            "rot": [0.0, 0.0, 0.0],
+                                            "children": {
+                                                "mHandMiddle2Left": {
+                                                    "pos": [-0.001, 0.040, -0.006],
+                                                    "rot": [0.0, 0.0, 0.0],
+                                                    "children": {
+                                                        "mHandMiddle3Left": {
+                                                            "pos": [-0.001, 0.049, -0.008],
+                                                            "rot": [0.0, 0.0, 0.0],
+                                                            "children": {}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "mHandIndex1Left": {
+                                            "pos": [0.038, 0.097, 0.015],
+                                            "rot": [0.0, 0.0, 0.0],
+                                            "children": {
+                                                "mHandIndex2Left": {
+                                                    "pos": [0.017, 0.036, -0.006],
+                                                    "rot": [0.0, 0.0, 0.0],
+                                                    "children": {
+                                                        "mHandIndex3Left": {
+                                                            "pos": [0.014, 0.032, -0.006],
+                                                            "rot": [0.0, 0.0, 0.0],
+                                                            "children": {}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "mHandThumb1Left": {
+                                            "pos": [0.031, 0.026, 0.004],
+                                            "rot": [0.0, 0.0, 0.0],
+                                            "children": {
+                                                "mHandThumb2Left": {
+                                                    "pos": [0.028, 0.032, -0.001],
+                                                    "rot": [0.0, 0.0, 0.0],
+                                                    "children": {
+                                                        "mHandThumb3Left": {
+                                                            "pos": [0.023, 0.031, -0.001],
+                                                            "rot": [0.0, 0.0, 0.0],
+                                                            "children": {}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "mHandRing1Left": {
+                                            "pos": [-0.010, 0.099, 0.009],
+                                            "rot": [0.0, 0.0, 0.0],
+                                            "children": {
+                                                "mHandRing2Left": {
+                                                    "pos": [-0.013, 0.038, -0.008],
+                                                    "rot": [0.0, 0.0, 0.0],
+                                                    "children": {
+                                                        "mHandRing3Left": {
+                                                            "pos": [-0.013, 0.040, -0.009],
+                                                            "rot": [0.0, 0.0, 0.0],
+                                                            "children": {}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "mHandPinky1Left": {
+                                            "pos": [-0.031, 0.095, 0.003],
+                                            "rot": [0.0, 0.0, 0.0],
+                                            "children": {
+                                                "mHandPinky2Left": {
+                                                    "pos": [-0.024, 0.025, -0.006],
+                                                    "rot": [0.0, 0.0, 0.0],
+                                                    "children": {
+                                                        "mHandPinky3Left": {
+                                                            "pos": [-0.015, 0.018, -0.004],
+                                                            "rot": [0.0, 0.0, 0.0],
+                                                            "children": {}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "right": {
+        "mCollarRight": {
+            "pos": [-0.021, -0.085, 0.165],
+            "rot": [0.0, 0.0, 0.0],
+            "children": {
+                "mShoulderRight": {
+                    "pos": [0.000, -0.079, -0.000],
+                    "rot": [0.0, 0.0, 0.0],
+                    "children": {
+                        "mElbowRight": {
+                            "pos": [0.000, -0.248, -0.000],
+                            "rot": [0.0, 0.0, 0.0],
+                            "children": {
+                                "mWristRight": {
+                                    "pos": [0.000, -0.205, -0.000],
+                                    "rot": [0.0, 0.0, 0.0],
+                                    "children": {
+                                        "mHandMiddle1Right": {
+                                            "pos": [0.013, -0.101, 0.015],
+                                            "rot": [0.0, 0.0, 0.0],
+                                            "children": {
+                                                "mHandMiddle2Right": {
+                                                    "pos": [-0.001, -0.040, -0.006],
+                                                    "rot": [0.0, 0.0, 0.0],
+                                                    "children": {
+                                                        "mHandMiddle3Right": {
+                                                            "pos": [-0.001, -0.049, -0.008],
+                                                            "rot": [0.0, 0.0, 0.0],
+                                                            "children": {}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "mHandIndex1Right": {
+                                            "pos": [0.038, -0.097, 0.015],
+                                            "rot": [0.0, 0.0, 0.0],
+                                            "children": {
+                                                "mHandIndex2Right": {
+                                                    "pos": [0.017, -0.036, -0.006],
+                                                    "rot": [0.0, 0.0, 0.0],
+                                                    "children": {
+                                                        "mHandIndex3Right": {
+                                                            "pos": [0.014, -0.032, -0.006],
+                                                            "rot": [0.0, 0.0, 0.0],
+                                                            "children": {}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "mHandThumb1Right": {
+                                            "pos": [0.031, -0.026, 0.004],
+                                            "rot": [0.0, 0.0, 0.0],
+                                            "children": {
+                                                "mHandThumb2Right": {
+                                                    "pos": [0.028, -0.032, -0.001],
+                                                    "rot": [0.0, 0.0, 0.0],
+                                                    "children": {
+                                                        "mHandThumb3Right": {
+                                                            "pos": [0.023, -0.031, -0.001],
+                                                            "rot": [0.0, 0.0, 0.0],
+                                                            "children": {}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "mHandRing1Right": {
+                                            "pos": [-0.010, -0.099, 0.009],
+                                            "rot": [0.0, 0.0, 0.0],
+                                            "children": {
+                                                "mHandRing2Right": {
+                                                    "pos": [-0.013, -0.038, -0.008],
+                                                    "rot": [0.0, 0.0, 0.0],
+                                                    "children": {
+                                                        "mHandRing3Right": {
+                                                            "pos": [-0.013, -0.040, -0.009],
+                                                            "rot": [0.0, 0.0, 0.0],
+                                                            "children": {}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "mHandPinky1Right": {
+                                            "pos": [-0.031, -0.095, 0.003],
+                                            "rot": [0.0, 0.0, 0.0],
+                                            "children": {
+                                                "mHandPinky2Right": {
+                                                    "pos": [-0.024, -0.025, -0.006],
+                                                    "rot": [0.0, 0.0, 0.0],
+                                                    "children": {
+                                                        "mHandPinky3Right": {
+                                                            "pos": [-0.015, -0.018, -0.004],
+                                                            "rot": [0.0, 0.0, 0.0],
+                                                            "children": {}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 # ------------------------------------------------------------------------
 # Bone Hierarchy Repair and Cleanup Functions
 # ------------------------------------------------------------------------
@@ -665,7 +890,65 @@ def remove_unwanted_bones(armature, allowed_bones):
     bpy.ops.object.mode_set(mode='OBJECT')
     print(f"[INFO] {len(to_remove)} unerwünschte Bones entfernt.")
 
+# class OBJECT_OT_toggle_bone_visibility(Operator):
+#     bl_idname = "object.toggle_bone_visibility"  # Korrekt beibehalten
+#     bl_label = "Toggle Bone Visibility"
+#     bl_options = {'REGISTER', 'UNDO'}
+    
+#     def execute(self, context):
+#         if (obj := context.active_object) and obj.type == 'ARMATURE':
+#             obj.show_in_front = not obj.show_in_front
+#         return {'FINISHED'}
+
+# todo: Farben stimmen nicht ganz
+class OBJECT_OT_toggle_bone_visibility(Operator):
+    bl_idname = "object.toggle_bone_visibility"
+    bl_label = "Toggle Bone Visibility + Color Bones"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        obj = context.active_object
+
+        if obj and obj.type == 'ARMATURE':
+            # Toggle Sichtbarkeit
+            obj.show_in_front = not obj.show_in_front
+
+            # In Pose-Modus wechseln, falls nötig
+            if context.mode != 'POSE':
+                bpy.ops.object.posemode_toggle()
+
+            # Sichtbarkeit aktiviert → Farben setzen
+            if obj.show_in_front:
+                for bone in obj.pose.bones:
+                    name = bone.name.lower()
+                    bone.color.palette = 'CUSTOM'
+
+                    if 'l' in name or 'left' in name:
+                        bone.color.custom.normal = (1.0, 0.0, 0.0)   # Rot
+                        bone.color.custom.select = (1.0, 0.5, 0.5)
+                        bone.color.custom.active = (1.0, 0.2, 0.2)
+
+                    elif 'r' in name or 'right' in name or 'Right' in name:
+                        bone.color.custom.normal = (0.0, 0.0, 1.0)   # Blau
+                        bone.color.custom.select = (0.5, 0.5, 1.0)
+                        bone.color.custom.active = (0.2, 0.2, 1.0)
+
+                    else:
+                        bone.color.custom.normal = (0.0, 1.0, 0.0)   # Grün
+                        bone.color.custom.select = (0.5, 1.0, 0.5)
+                        bone.color.custom.active = (0.2, 1.0, 0.2)
+
+            # Sichtbarkeit deaktiviert → Farben zurücksetzen
+            else:
+                for bone in obj.pose.bones:
+                    bone.color.palette = 'DEFAULT'  # Oder 'THEME' je nach Wunsch
+
+        return {'FINISHED'}
+
+
+# ------------------------------------------------------------------------
 # Operator-Klassen
+# ------------------------------------------------------------------------
 class OBJECT_OT_repair_pairing(bpy.types.Operator):
     """Repariert fehlerhafte Bone-Hierarchien durch korrektes Parenting"""
     bl_idname = "object.repair_pairing"
@@ -724,84 +1007,39 @@ class OBJECT_OT_remove_unwanted_bones(bpy.types.Operator):
 # PROPERTY GROUP (stores addon settings)
 # ------------------------------------------------------------------------
 class BoneMappingProperties(PropertyGroup):
-    """
-    Stores all addon settings in the Blender scene
-    Access via: context.scene.bone_mapping_props
-    """
-    
-    # File import/export properties
-    import_file: StringProperty(
-        name="Import File",
-        description="Path to JSON file containing custom bone mappings",
-        default="",
-        maxlen=1024,
-        subtype='FILE_PATH'
-    )
-    
-    export_file: StringProperty(
-        name="Export File",
-        description="Path to save current bone mappings as JSON",
-        default="",
-        maxlen=1024,
-        subtype='FILE_PATH'
-    )
+    """Stores all addon settings in the Blender scene"""
+    # File import/export
+    import_file: StringProperty(name="Import File", description="Path to JSON file", default="", maxlen=1024, subtype='FILE_PATH')
+    export_file: StringProperty(name="Export File", description="Path to save mappings", default="", maxlen=1024, subtype='FILE_PATH')
     
     # Preset selection
-    preset: EnumProperty(
-        name="Preset",
-        description="Select bone mapping preset",
-        items=[
-            ('BENTO_FULL', "Bento Full", "Complete Bento skeleton with hands"),
-            ('BASIC', "Basic", "Basic OpenSim skeleton without hands"),
-            ('CUSTOM', "Custom", "Load custom mapping from file")
-        ],
-        default='BENTO_FULL'
-    )
+    preset: EnumProperty(name="Preset", description="Bone mapping preset", items=[
+        ('BENTO_FULL', "Bento Full", "Complete Bento skeleton"),
+        ('BASIC', "Basic", "Basic OpenSim skeleton"),
+        ('CUSTOM', "Custom", "Load from file")], default='BENTO_FULL')
     
-    # Prefix handling options
-    prefix_mode: EnumProperty(
-        name="Prefix Mode",
-        description="How to handle Mixamo bone prefixes",
-        items=[
-            ('AUTO', "Auto-Detect", "Automatically detect Mixamo prefix"),
-            ('MANUAL', "Manual Select", "Select from common prefixes"),
-            ('CUSTOM', "Custom", "Specify custom prefix pattern")
-        ],
-        default='AUTO'
-    )
+    # Prefix handling
+    prefix_mode: EnumProperty(name="Prefix Mode", description="Mixamo prefix handling", items=[
+        ('AUTO', "Auto-Detect", "Detect automatically"),
+        ('MANUAL', "Manual", "Select from list"),
+        ('CUSTOM', "Custom", "Specify custom")], default='AUTO')
+    manual_prefix: EnumProperty(name="Manual Prefix", description="Predefined prefix", items=[
+        ('mixamorig:', "mixamorig:", "Standard prefix"),
+        ('mixamorig1:', "mixamorig1:", "First variant"),
+        ('mixamorig2:', "mixamorig2:", "Second variant")], default='mixamorig:')
+    custom_prefix: StringProperty(name="Custom Prefix", description="Custom prefix pattern", default="mixamorig:", maxlen=32)
     
-    manual_prefix: EnumProperty(
-        name="Manual Prefix",
-        description="Select a predefined Mixamo prefix",
-        items=[
-            ('mixamorig:', "mixamorig:", "Standard prefix (most common)"),
-            ('mixamorig1:', "mixamorig1:", "First numbered variant"),
-            ('mixamorig2:', "mixamorig2:", "Second numbered variant")
-        ],
-        default='mixamorig:'
-    )
+    # Weight optimization
+    weight_threshold: FloatProperty(name="Weight Threshold", description="Remove small weights", default=0.01, min=0.0, max=0.5)
+    harden_joints: BoolProperty(name="Harden Joints", description="Sharper joint transitions", default=True)
     
-    custom_prefix: StringProperty(
-        name="Custom Prefix",
-        description="Enter custom prefix (e.g. 'myRig_:')",
-        default="mixamorig:",
-        maxlen=32
-    )
+    # Hand posing
+    apply_left_hand: BoolProperty(name="Left Hand", description="Apply to left hand", default=True)
+    apply_right_hand: BoolProperty(name="Right Hand", description="Apply to right hand", default=True)
     
-    # Weight optimization settings
-    weight_threshold: FloatProperty(
-        name="Weight Threshold",
-        description="Remove vertex weights below this value",
-        default=0.01,
-        min=0.0,
-        max=0.5
-    )
-    
-    harden_joints: BoolProperty(
-        name="Harden Joints",
-        description="Create sharper transitions at elbows and knees",
-        default=True
-    )
+    # Deformation repair (NEUE PROPERTIES)
+    spine_scale: FloatProperty(name="Spine Scale", description="Spine bone scaling factor", default=1.2, min=0.5, max=3.0)
+    min_bone_scale: FloatProperty(name="Min Bone Scale", description="Minimum bone size relative to mesh", default=1.0, min=0.1, max=5.0)
 
 # ------------------------------------------------------------------------
 # IMPORT/EXPORT OPERATORS
@@ -884,120 +1122,6 @@ class OBJECT_OT_export_mapping(Operator, ExportHelper):
         
         return bone_map
     
-# ------------------------------------------------------------------------
-# MAIN RENAMING OPERATOR
-# ------------------------------------------------------------------------
-# class OBJECT_OT_rename_mixamo_bones(Operator):
-#     """Main operator that performs the bone renaming"""
-#     bl_idname = "object.rename_mixamo_bones"
-#     bl_label = "Convert Mixamo Rig"
-#     bl_options = {'REGISTER', 'UNDO'}
-
-#     def detect_prefix(self, armature):
-#         """Automatically detects Mixamo prefix in armature"""
-#         prefixes = ['mixamorig:', 'mixamorig1:', 'mixamorig2:']
-#         for bone in armature.data.bones:
-#             for prefix in prefixes:
-#                 if bone.name.startswith(prefix):
-#                     return prefix
-#         return None
-
-#     def get_prefix(self, context, armature):
-#         """Gets prefix based on user settings"""
-#         props = context.scene.bone_mapping_props
-#         if props.prefix_mode == 'AUTO':
-#             return self.detect_prefix(armature)
-#         elif props.prefix_mode == 'MANUAL':
-#             return props.manual_prefix
-#         return props.custom_prefix
-
-#     # execute was? execute3
-#     def execute(self, context):
-#         props = context.scene.bone_mapping_props
-        
-#         # Get current mapping
-#         if props.preset == 'CUSTOM':
-#             bone_map = context.scene.get('custom_bone_map', {})
-#         else:
-#             bone_map = PRESETS[props.preset]
-
-#         processed = 0
-#         skipped = 0
-#         armatures = [obj for obj in context.selected_objects if obj.type == 'ARMATURE']
-#         meshes = [obj for obj in context.selected_objects if obj.type == 'MESH']
-
-#         for armature in armatures:
-#             prefix = self.get_prefix(context, armature)
-#             if not prefix:
-#                 self.report({'WARNING'}, f"No Mixamo prefix found in {armature.name}")
-#                 continue
-
-#             pattern = re.compile(f"^{re.escape(prefix)}")
-# # ausgetauscht
-#             # Rename bones in Edit Mode
-#             bpy.context.view_layer.objects.active = armature
-#             bpy.ops.object.mode_set(mode='EDIT')
-
-#             # ---------- RENAME‑LOOP ----------
-#             for bone in armature.data.edit_bones:
-#                 if not pattern.match(bone.name):
-#                     skipped += 1
-#                     continue
-
-#                 base_name = pattern.sub("", bone.name)
-#                 if base_name in bone_map:
-#                     new_name = bone_map[base_name]
-#                     if new_name in armature.data.edit_bones and armature.data.edit_bones[new_name] != bone:
-#                         self.report({'WARNING'}, f"Skipped: {new_name} already exists")
-#                         skipped += 1
-#                         continue
-#                     bone.name = new_name
-#                     processed += 1
-#             # ----------------------------------
-
-#             # zurück in Object‑Mode
-#             bpy.ops.object.mode_set(mode='OBJECT')
-
-#             # Hilfs‑Operatoren jetzt erst ausführen
-#             bpy.ops.object.fix_bone_roll()
-#             bpy.ops.object.auto_parenting()
-#             bpy.ops.object.apply_rest_pose()
-# # ausgetauscht
-            
-#             for bone in armature.data.edit_bones:
-#                 if not pattern.match(bone.name):
-#                     skipped += 1
-#                     continue
-                    
-#                 base_name = pattern.sub("", bone.name)
-                
-#                 if base_name in bone_map:
-#                     new_name = bone_map[base_name]
-                    
-#                     # Skip if name already exists (unless it's the same bone)
-#                     if new_name in armature.data.edit_bones:
-#                         if armature.data.edit_bones[new_name] != bone:
-#                             self.report({'WARNING'}, f"Skipped: {new_name} already exists")
-#                             skipped += 1
-#                             continue
-                            
-#                     bone.name = new_name
-#                     processed += 1
-            
-#             bpy.ops.object.mode_set(mode='OBJECT')
-            
-#             # Rename vertex groups in child meshes
-#             for mesh in meshes:
-#                 if mesh.parent == armature:
-#                     for vg in mesh.vertex_groups:
-#                         if pattern.match(vg.name):
-#                             base_name = pattern.sub("", vg.name)
-#                             if base_name in bone_map:
-#                                 vg.name = bone_map[base_name]
-
-#         self.report({'INFO'}, f"Renamed {processed} bones, skipped {skipped}")
-#         return {'FINISHED'}
-
 class OBJECT_OT_rename_mixamo_bones(Operator):
     """Main operator that performs the bone renaming"""
     bl_idname = "object.rename_mixamo_bones"
@@ -1094,6 +1218,86 @@ class OBJECT_OT_rename_mixamo_bones(Operator):
                 context.view_layer.objects.active = original_active
 
         self.report({'INFO'}, f"Renamed {processed} bones, skipped {skipped}")
+        return {'FINISHED'}
+
+# ------------------------------------------------------------------------
+# DATA APPLICATION OPERATOR
+# ------------------------------------------------------------------------
+# HAND DATA APPLICATION OPERATOR
+class OBJECT_OT_apply_hand_data(Operator):
+    bl_idname = "object.apply_hand_data"
+    bl_label = "Apply Hand Pose"
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    @classmethod
+    def poll(cls, context):
+        return (context.active_object and 
+                context.active_object.type == 'ARMATURE')
+    
+    def detect_prefix(self, armature):
+        """Automatically detects Mixamo prefix in armature"""
+        prefixes = ['mixamorig:', 'mixamorig1:', 'mixamorig2:']
+        for bone in armature.data.bones:
+            for prefix in prefixes:
+                if bone.name.startswith(prefix):
+                    return prefix
+        return None
+    
+    def find_bone(self, armature, bento_name, prefix=""):
+        """
+        Finds a bone by:
+        1. Original Bento name (e.g., "mWristLeft")
+        2. Mixamo name with prefix (e.g., "mixamorig:LeftHand")
+        3. Fallback to Bento-to-Mixamo mapping (if defined in PRESETS)
+        """
+        # Try exact Bento name first (from hand_data)
+        bone = armature.pose.bones.get(bento_name)
+        if bone:
+            return bone
+        
+        # Try Mixamo name if prefix exists (e.g., "mixamorig:LeftHand")
+        if prefix:
+            # Reverse lookup in PRESETS to find Mixamo equivalent
+            for mixamo_name, preset_name in PRESETS['BENTO_FULL'].items():
+                if preset_name == bento_name:
+                    prefixed_name = prefix + mixamo_name
+                    bone = armature.pose.bones.get(prefixed_name)
+                    if bone:
+                        return bone
+        
+        return None
+    
+    def execute(self, context):
+        props = context.scene.bone_mapping_props
+        armature = context.active_object
+        prefix = self.detect_prefix(armature)  # Auto-detect Mixamo prefix
+        
+        def apply_bone_recursive(bone_dict):
+            """Applies pose data recursively"""
+            for bento_name, data in bone_dict.items():
+                if isinstance(data, dict) and 'pos' in data:
+                    bone = self.find_bone(armature, bento_name, prefix)
+                    if not bone:
+                        self.report({'WARNING'}, f"Bone '{bento_name}' not found!")
+                        continue
+                    
+                    # Apply position and rotation
+                    bone.location = data['pos']
+                    if 'rot' in data:
+                        bone.rotation_mode = 'XYZ'
+                        bone.rotation_euler = data['rot']
+                
+                # Process children
+                if 'children' in data:
+                    apply_bone_recursive(data['children'])
+
+        # Apply to left/right hands based on settings
+        if props.apply_left_hand:
+            apply_bone_recursive(hand_data['left'])
+        if props.apply_right_hand:
+            apply_bone_recursive(hand_data['right'])
+        
+        self.report({'INFO'}, "Hand pose applied!")
         return {'FINISHED'}
 
 # ------------------------------------------------------------------------
@@ -1223,7 +1427,6 @@ class OBJECT_OT_optimize_weights(bpy.types.Operator):
                 # Vertex nicht im src‑Group – überspringen
                 continue
 
-
 # ------------------------------------------------------------------------
 # Auto Parenting and Auto Weighting Section
 # ------------------------------------------------------------------------
@@ -1338,32 +1541,6 @@ class OBJECT_OT_save_weights_json(bpy.types.Operator, ExportHelper):
             self.report({'ERROR'}, f"Fehler beim Schreiben der Datei: {str(e)}")
             return {'CANCELLED'}
 
-
-# class OBJECT_OT_export_opensim_dae(Operator):
-#     """Exportiert ausgewählte Objekte als SL/OpenSim‑taugliche DAE"""
-#     bl_idname = "export_scene.opensim_dae"
-#     bl_label  = "Export DAE (OpenSim)"
-#     bl_options = {'REGISTER'}
-
-#     filepath: StringProperty(subtype="FILE_PATH")
-
-#     def execute(self, ctx):
-#         if not self.filepath.lower().endswith(".dae"):
-#             self.filepath += ".dae"
-
-#         bpy.ops.wm.collada_export(
-#             filepath=self.filepath,
-#             selected=True,
-#             apply_armature_deform=True,
-#             export_armatures=True,
-#             export_meshes=True,
-#             deform_bones_only=False,
-#             keep_bind_info=True,
-#             second_life=True      # <‑‑ wichtig!
-#         )
-#         self.report({'INFO'}, f"DAE exportiert nach {self.filepath}")
-#         return {'FINISHED'}
-
 class OBJECT_OT_export_opensim_dae(Operator):
     """Exportiert ausgewählte Objekte als SL/OpenSim‑taugliche DAE"""
     bl_idname = "export_scene.opensim_dae"
@@ -1429,7 +1606,6 @@ class OBJECT_OT_load_weights_json(bpy.types.Operator, ImportHelper):
             
         self.report({'INFO'}, f"Weights importiert: {os.path.basename(self.filepath)}")
         return {'FINISHED'}
-
 
 class OBJECT_OT_auto_weighting(bpy.types.Operator):
     """Automatische Gewichtszuweisung via Armature"""
@@ -1579,8 +1755,6 @@ class OBJECT_OT_bone_info(Operator):
                 warnings.append("- Keine starken Vertex-Bindungen (Max Weight < 0.5)")
         
         return warnings
-
-
 
 class OBJECT_OT_analyze_bone_structure(Operator):
     """Erweiterte Bone-Struktur Analyse"""
@@ -1837,122 +2011,155 @@ class ARMATURE_OT_validate_rig(Operator):
 # ------------------------------------------------------------------------
 # Apply All Transforms Operator
 # ------------------------------------------------------------------------
+        
 class OBJECT_OT_apply_all_transforms(Operator):
     """Wendet alle Transformationen (Location, Rotation, Scale) auf das ausgewählte Objekt an"""
     bl_idname = "object.apply_all_transforms"
     bl_label = "Apply All Transforms"
     bl_options = {'REGISTER', 'UNDO'}
     
-    @classmethod
+    @classmethod 
     def poll(cls, context):
         return context.active_object is not None
 
     def execute(self, context):
         try:
-            # Sicherstellen dass wir im Object Mode sind
-            if context.object.mode != 'OBJECT':
-                bpy.ops.object.mode_set(mode='OBJECT')
+            # Store current selection
+            original_active = context.active_object
+            selected_objects = context.selected_objects
             
-            # Alle Transformationen anwenden
-            bpy.ops.object.transform_apply(
-                location=True,
-                rotation=True,
-                scale=True
-            )
+            # Process all selected objects
+            for obj in selected_objects:
+                # Ensure we're in object mode
+                if obj.mode != 'OBJECT':
+                    bpy.ops.object.mode_set(mode='OBJECT')
+                
+                # Make object active and selected
+                bpy.ops.object.select_all(action='DESELECT')
+                obj.select_set(True)
+                context.view_layer.objects.active = obj
+                
+                # Apply transforms with matrix backup
+                original_matrix = obj.matrix_world.copy()
+                bpy.ops.object.transform_apply(
+                    location=True,
+                    rotation=True,
+                    scale=True
+                )
+                
+                # Restore original position
+                obj.matrix_world = original_matrix
+                
+                # Special handling for armatures
+                if obj.type == 'ARMATURE':
+                    # Apply transforms to pose bones
+                    bpy.ops.object.mode_set(mode='POSE')
+                    bpy.ops.pose.transforms_clear()
+                    bpy.ops.object.mode_set(mode='OBJECT')
             
-            self.report({'INFO'}, "Alle Transformationen wurden angewendet")
+            # Restore original selection
+            bpy.ops.object.select_all(action='DESELECT')
+            for obj in selected_objects:
+                obj.select_set(True)
+            context.view_layer.objects.active = original_active
+            
+            self.report({'INFO'}, "Transforms applied to {} objects".format(len(selected_objects)))
             return {'FINISHED'}
             
         except Exception as e:
-            self.report({'ERROR'}, f"Fehler: {str(e)}")
+            self.report({'ERROR'}, "Error: {}".format(str(e)))
             return {'CANCELLED'}
+        
+# ------------------------------------------------------------------------
+# Fix Mesh Deformations Operator
+# ------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------
-# UI PANEL
-# ------------------------------------------------------------------------
-# class OBJECT_PT_mixamo_bone_panel(Panel):
-#     """Creates the UI panel in the 3D view sidebar"""
-#     bl_label = "Mixamo to OpenSim"
-#     bl_idname = "OBJECT_PT_mixamo_bone_panel"
-#     bl_space_type = 'VIEW_3D'
-#     bl_region_type = 'UI'
-#     bl_category = 'Mixamo Tools'
+class OBJECT_OT_fix_deformations(Operator):
+    """Behebt Mesh-Verzerrungen OHNE Skalierungsverlust"""
+    bl_idname = "object.fix_deformations"
+    bl_label = "Fix Mesh Deformations"
+    bl_options = {'REGISTER', 'UNDO'}
     
-#     def draw(self, context):
-#         layout = self.layout
-#         props = context.scene.bone_mapping_props
+    spine_scale: FloatProperty(
+        name="Spine Scale Factor",
+        default=1.2,
+        min=0.5,
+        max=2.0,
+        description="Relative spine bone scaling"
+    )
+    
+    min_bone_scale: FloatProperty(
+        name="Min Bone Scale",
+        default=1.0,
+        min=0.1,
+        max=10.0,
+        description="Minimum bone size relative to mesh"
+    )
+
+    def execute(self, context):
+        try:
+            armature = context.active_object
+            meshes = [obj for obj in context.selected_objects if obj.type == 'MESH']
+            
+            if not armature or armature.type != 'ARMATURE':
+                self.report({'ERROR'}, "No armature selected")
+                return {'CANCELLED'}
+            
+            # === 1. Store original scale ===
+            original_scale = armature.scale.copy()
+            
+            # === 2. Apply transforms FIRST ===
+            bpy.ops.object.transform_apply(scale=True)
+            
+            # === 3. Proportional bone adjustments ===
+            bpy.ops.object.mode_set(mode='EDIT')
+            
+            # Calculate reference length (hips to head)
+            root_bones = [b for b in armature.data.edit_bones if not b.parent]
+            if root_bones:
+                ref_length = sum(b.length for b in root_bones)
+                mesh_size = max(mesh.dimensions.length for mesh in meshes) if meshes else 1.0
+                size_ratio = mesh_size / max(ref_length, 0.0001)
+                
+                for bone in armature.data.edit_bones:
+                    # Apply proportional scaling
+                    bone.length *= max(size_ratio * self.min_bone_scale, 0.01)
+                    if "Spine" in bone.name:
+                        bone.length *= self.spine_scale
+            
+            bpy.ops.object.mode_set(mode='OBJECT')
+            
+            # === 4. Restore original proportions ===
+            armature.scale = original_scale
+            bpy.ops.object.transform_apply(scale=True)
+            
+            # === 5. Weight reprocessing ===
+            for mesh in meshes:
+                # Clean vertex groups
+                vgroups = mesh.vertex_groups
+                bone_names = {bone.name for bone in armature.pose.bones}
+                to_remove = [vg for vg in vgroups if vg.name not in bone_names]
+                
+                for vg in to_remove:
+                    vgroups.remove(vg)
+                
+                # Reassign weights
+                bpy.ops.object.select_all(action='DESELECT')
+                mesh.select_set(True)
+                armature.select_set(True)
+                context.view_layer.objects.active = armature
+                bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+            
+            self.report({'INFO'}, "Fixed deformations while maintaining scale")
+            return {'FINISHED'}
+            
+        except Exception as e:
+            self.report({'ERROR'}, f"Scale preservation failed: {str(e)}")
+            return {'CANCELLED'}
         
-#         # Bone Mapping Section
-#         box = layout.box()
-#         box.label(text="Bone Mapping")
-#         box.prop(props, "preset", text="Preset")
-        
-#         # Prefix Options
-#         box.prop(props, "prefix_mode", text="Prefix Handling")
-#         if props.prefix_mode == 'MANUAL':
-#             box.prop(props, "manual_prefix")
-#         elif props.prefix_mode == 'CUSTOM':
-#             box.prop(props, "custom_prefix")
-        
-#         # Import/Export Buttons
-#         row = box.row()
-#         row.operator("object.import_mapping", text="Import", icon='IMPORT')
-#         row.operator("object.export_mapping", text="Export", icon='EXPORT')
-        
-#         # Main Conversion Button
-#         box.operator("object.rename_mixamo_bones", text="Convert Rig", icon='ARMATURE_DATA')
-        
-#         # Weight Optimization Section
-#         box = layout.box()
-#         box.label(text="Weight Optimization")
-#         box.prop(props, "weight_threshold")
-#         box.prop(props, "harden_joints")
-#         box.operator("object.optimize_weights", text="Optimize Weights", icon='MOD_VERTEX_WEIGHT')
-
-#         # Auto Parenting and Auto Weighting Section
-#         box = layout.box()
-#         box.label(text="Auto-Rigging Funktionen")
-#         box.operator("object.auto_parenting", text="Knochen automatisch parenten", icon='CONSTRAINT_BONE')
-#         box.operator("object.auto_weighting", text="Gewichtung automatisch berechnen", icon='MOD_VERTEX_WEIGHT')
-
-#         # Weight Presets Section
-#         box = layout.box()
-#         box.label(text="Weight Presets", icon='MOD_VERTEX_WEIGHT')
-#         row = box.row()
-#         row.operator("object.save_weights_json", icon='EXPORT')
-#         row.operator("object.load_weights_json", icon='IMPORT')
-#         box.operator("object.auto_weighting", icon='AUTO')
-        
-#         # Analyse-Block
-#         box = layout.box()
-#         box.label(text="Bone-Struktur prüfen", icon='BONE_DATA')
-#         row = box.row()
-#         row.operator("object.analyze_bone_structure", text="Analyse starten", icon='ZOOM_IN')
-
-#         # Reparatur-Block
-#         box = layout.box()
-#         box.label(text="Bone-Struktur reparieren", icon='TOOL_SETTINGS')
-#         box.operator("object.fix_bone_structure", text="Struktur reparieren", icon='MODIFIER')
-
-#         # Bone Hierarchy Repair and Cleanup Section
-#         box = layout.box()
-#         box.label(text="Bone-Hierarchie reparieren und aufräumen", icon="BONE_DATA")
-#         row = box.row()
-#         row.operator("object.repair_pairing", icon="CONSTRAINT_BONE")
-#         row.operator("object.remove_unwanted_bones", icon="TRASH")
-
-#         # Bone Analysis Section
-#         box = layout.box()
-#         box.label(text="Bone Analysis", icon='BONE_DATA')
-#         col = box.column(align=True)
-#         col.operator("armature.bone_info", text="Show Bone Info", icon='INFO')
-#         col.operator("armature.validate_rig", text="Validate Rigging", icon='CHECKMARK')
-
-#         # Apply All Transforms Button
-#         box = layout.box()
-#         box.label(text="Apply All Transforms", icon='CON_LOCLIKE')
-#         box.operator("object.apply_all_transforms", icon='CON_LOCLIKE')
-
+# ------------------------------------------------------------------------
+# UI Panel for Mixamo to OpenSim Tools
+# ------------------------------------------------------------------------
 class OBJECT_PT_mixamo_bone_panel(Panel):
     """Creates the UI panel in the 3D view sidebar"""
     bl_label = "Mixamo to OpenSim"
@@ -1960,7 +2167,7 @@ class OBJECT_PT_mixamo_bone_panel(Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = 'Mixamo Tools'
-    bl_options = {'DEFAULT_CLOSED'}
+
     
     def draw(self, context):
         layout = self.layout
@@ -1985,10 +2192,25 @@ class OBJECT_PT_mixamo_bone_panel(Panel):
         row = config_box.row(align=True)
         row.operator("object.import_mapping", text="Load Preset", icon='IMPORT')
         row.operator("object.export_mapping", text="Save Preset", icon='EXPORT')
-        
+
+        # Toggle Bone Visibility Box Knochen anzeigen
+        box = layout.box()
+        box.label(text="Bone Visibility")
+        box.operator("object.toggle_bone_visibility", text="Vordergrund/Hintergrund", icon='HIDE_OFF')
+                
         # ===== 2. CONVERSION SECTION =====
         convert_box = layout.box()
         convert_box.label(text="2. Conversion", icon='ARMATURE_DATA')
+        
+        # NEU: Hand Positioning in eigener Box
+        hand_box = convert_box.box()
+        hand_box.label(text="Hand Pose", icon='HAND')
+        
+        # NEU: Toggle-Reihe
+        row = hand_box.row(align=True)
+        row.prop(props, "apply_left_hand", toggle=True, text="Left")
+        row.prop(props, "apply_right_hand", toggle=True, text="Right")        
+        hand_box.operator("object.apply_hand_data", text="Apply Pose", icon='ARMATURE_DATA')
         
         # Main Conversion Button
         convert_box.operator("object.rename_mixamo_bones", text="Convert Rig", icon='ARMATURE_DATA')
@@ -2031,6 +2253,24 @@ class OBJECT_PT_mixamo_bone_panel(Panel):
         col.operator("object.fix_bone_structure", text="Fix Structure", icon='TOOL_SETTINGS')
         col.operator("object.remove_unwanted_bones", text="Remove Unused Bones", icon='TRASH')
         col.operator("object.repair_pairing", text="Repair Connections", icon='CONSTRAINT_BONE')
+
+        # NEU === DEFORMATION FIX SECTION ===
+        deform_box = layout.box()
+        deform_box.label(text="Deformation Repair", icon='MODIFIER')
+        deform_box.operator("object.fix_deformations", text="Quick Fix Deformations", icon='OUTLINER_OB_MESH')
+        if context.active_object and context.active_object.type == 'ARMATURE':
+            deform_box.label(text="Advanced Settings:", icon='SETTINGS')
+            row = deform_box.row(align=True)
+            row.label(text="Spine Scaling:")
+            row.prop(context.scene.bone_mapping_props, "spine_scale", slider=True, text="Factor")
+            row = deform_box.row(align=True)
+            row.label(text="Min Bone Size:")
+            row.prop(context.scene.bone_mapping_props, "min_bone_scale", slider=True, text="Relative")
+            op = deform_box.operator("object.fix_deformations", text="Apply Advanced Fix", icon='MODIFIER')
+            op.spine_scale = context.scene.bone_mapping_props.spine_scale
+            op.min_bone_scale = context.scene.bone_mapping_props.min_bone_scale
+
+        # Ende der Deformation Box
         
         # ===== 5. FINALIZATION =====
         final_box = layout.box()
@@ -2069,9 +2309,13 @@ def register():
 
     bpy.utils.register_class(OBJECT_OT_repair_pairing)
     bpy.utils.register_class(OBJECT_OT_remove_unwanted_bones)
+
+    bpy.utils.register_class(OBJECT_OT_apply_hand_data)
+    bpy.utils.register_class(OBJECT_OT_fix_deformations)
+
+    bpy.utils.register_class(OBJECT_OT_toggle_bone_visibility)
     
-    bpy.types.Scene.bone_mapping_props = PointerProperty(
-        type=BoneMappingProperties)
+    bpy.types.Scene.bone_mapping_props = PointerProperty(type=BoneMappingProperties)
 
 def unregister():
     bpy.utils.unregister_class(BoneMappingProperties)
@@ -2098,6 +2342,11 @@ def unregister():
 
     bpy.utils.unregister_class(OBJECT_OT_remove_unwanted_bones)
     bpy.utils.unregister_class(OBJECT_OT_repair_pairing)
+
+    bpy.utils.unregister_class(OBJECT_OT_apply_hand_data)
+    bpy.utils.unregister_class(OBJECT_OT_fix_deformations)
+
+    bpy.utils.unregister_class(OBJECT_OT_toggle_bone_visibility)
     
     del bpy.types.Scene.bone_mapping_props
 
