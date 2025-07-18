@@ -30,17 +30,36 @@ bl_info = {
     "category": "Rigging",
 }
 
-import bpy
+# === SYSTEM IMPORTS ===
 import os
 import re
 import json
-from bpy.types import Operator, Panel, PropertyGroup
-from bpy.props import (StringProperty, 
-                      BoolProperty, 
-                      FloatProperty,
-                      EnumProperty,
-                      PointerProperty)
-from bpy_extras.io_utils import ImportHelper, ExportHelper
+import xml.etree.ElementTree as ET
+
+# === BLENDER CORE ===
+import bpy
+
+# === BLENDER TYPES ===
+# UI Components
+from bpy.types import Operator
+from bpy.types import Panel
+
+# Data Structures
+from bpy.types import PropertyGroup
+
+# === BLENDER PROPERTIES ===
+# Primitive Types
+from bpy.props import StringProperty
+from bpy.props import BoolProperty
+from bpy.props import FloatProperty
+
+# Special Types
+from bpy.props import EnumProperty
+from bpy.props import PointerProperty
+
+# === IO UTILITIES ===
+from bpy_extras.io_utils import ImportHelper
+from bpy_extras.io_utils import ExportHelper
 
 # ------------------------------------------------------------------------
 # PRESET MAPPINGS
@@ -890,17 +909,6 @@ def remove_unwanted_bones(armature, allowed_bones):
     bpy.ops.object.mode_set(mode='OBJECT')
     print(f"[INFO] {len(to_remove)} unerwünschte Bones entfernt.")
 
-# class OBJECT_OT_toggle_bone_visibility(Operator):
-#     bl_idname = "object.toggle_bone_visibility"  # Korrekt beibehalten
-#     bl_label = "Toggle Bone Visibility"
-#     bl_options = {'REGISTER', 'UNDO'}
-    
-#     def execute(self, context):
-#         if (obj := context.active_object) and obj.type == 'ARMATURE':
-#             obj.show_in_front = not obj.show_in_front
-#         return {'FINISHED'}
-
-# todo: Farben stimmen nicht ganz
 class OBJECT_OT_toggle_bone_visibility(Operator):
     bl_idname = "object.toggle_bone_visibility"
     bl_label = "Toggle Bone Visibility + Color Bones"
@@ -923,16 +931,32 @@ class OBJECT_OT_toggle_bone_visibility(Operator):
                     name = bone.name.lower()
                     bone.color.palette = 'CUSTOM'
 
-                    if 'l' in name or 'left' in name:
+                    # Gelb für Torso, Pelvis und Handgelenke
+                    if (
+                        "torso" in name
+                        or "pelvis" in name
+                        or "wristleft" in name
+                        or "wristright" in name
+                        or "hips" in name
+                        or "spine2" in name
+                    ):
+                        bone.color.custom.normal = (1.0, 1.0, 0.0)  # Gelb
+                        bone.color.custom.select = (1.0, 1.0, 0.5)
+                        bone.color.custom.active = (1.0, 1.0, 0.2)
+
+                    # Links (Rot)
+                    elif "left" in name and not "cleft" in name:
                         bone.color.custom.normal = (1.0, 0.0, 0.0)   # Rot
                         bone.color.custom.select = (1.0, 0.5, 0.5)
                         bone.color.custom.active = (1.0, 0.2, 0.2)
 
-                    elif 'r' in name or 'right' in name or 'Right' in name:
+                    # Rechts (Blau)
+                    elif "right" in name and not "bright" in name:
                         bone.color.custom.normal = (0.0, 0.0, 1.0)   # Blau
                         bone.color.custom.select = (0.5, 0.5, 1.0)
                         bone.color.custom.active = (0.2, 0.2, 1.0)
 
+                    # Standard (Grün)
                     else:
                         bone.color.custom.normal = (0.0, 1.0, 0.0)   # Grün
                         bone.color.custom.select = (0.5, 1.0, 0.5)
@@ -941,11 +965,10 @@ class OBJECT_OT_toggle_bone_visibility(Operator):
             # Sichtbarkeit deaktiviert → Farben zurücksetzen
             else:
                 for bone in obj.pose.bones:
-                    bone.color.palette = 'DEFAULT'  # Oder 'THEME' je nach Wunsch
+                    bone.color.palette = 'DEFAULT'
 
         return {'FINISHED'}
-
-
+    
 # ------------------------------------------------------------------------
 # Operator-Klassen
 # ------------------------------------------------------------------------
@@ -1040,6 +1063,30 @@ class BoneMappingProperties(PropertyGroup):
     # Deformation repair (NEUE PROPERTIES)
     spine_scale: FloatProperty(name="Spine Scale", description="Spine bone scaling factor", default=1.2, min=0.5, max=3.0)
     min_bone_scale: FloatProperty(name="Min Bone Scale", description="Minimum bone size relative to mesh", default=1.0, min=0.1, max=5.0)
+
+    # Neue Properties für Bone Groups hinzufügen
+    bone_group: bpy.props.EnumProperty(
+        name="Bone Group",
+        items=[
+            ('SPINE', "Spine", "Spine bones (mSpine1, mSpine2, etc.)"),
+            ('HANDS', "Hands", "Hand bones (mWristLeft, mHandIndex1Left, etc.)"),
+            ('FACE', "Face", "Face bones (mFaceRoot, mFaceNose, etc.)"),
+            ('ALL', "All", "All bone groups")
+        ],
+        default='ALL'
+    )
+    
+    apply_left_bone_group: bpy.props.BoolProperty(
+        name="Apply Left Side",
+        default=True,
+        description="Apply to left side bones"
+    )
+    
+    apply_right_bone_group: bpy.props.BoolProperty(
+        name="Apply Right Side",
+        default=True,
+        description="Apply to right side bones"
+    )
 
 # ------------------------------------------------------------------------
 # IMPORT/EXPORT OPERATORS
@@ -1299,6 +1346,188 @@ class OBJECT_OT_apply_hand_data(Operator):
         
         self.report({'INFO'}, "Hand pose applied!")
         return {'FINISHED'}
+
+
+
+
+# NEU
+
+# ==============================================
+# XML-BASED BONE POSE APPLIER
+# ==============================================
+
+class OBJECT_OT_apply_group_data(Operator):
+    bl_idname = "object.apply_group_data"
+    bl_label = "Apply Skeleton Pose from XML"
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    filepath: StringProperty(subtype="FILE_PATH")
+    apply_position: BoolProperty(name="Apply Position", default=True)
+    apply_rotation: BoolProperty(name="Apply Rotation", default=True)
+    apply_scale: BoolProperty(name="Apply Scale", default=False)
+    
+    @classmethod
+    def poll(cls, context):
+        return (context.active_object and 
+                context.active_object.type == 'ARMATURE')
+    
+    def detect_prefix(self, armature):
+        """Automatically detects Mixamo prefix in armature"""
+        prefixes = ['mixamorig:', 'mixamorig1:', 'mixamorig2:']
+        for bone in armature.data.bones:
+            for prefix in prefixes:
+                if bone.name.startswith(prefix):
+                    return prefix
+        return None
+    
+    def find_bone(self, armature, bone_name, prefix=""):
+        """
+        Finds a bone by:
+        1. Exact name match
+        2. With detected prefix
+        3. Using common naming conventions
+        """
+        # Try exact name first
+        bone = armature.pose.bones.get(bone_name)
+        if bone:
+            return bone
+        
+        # Try with prefix if available
+        if prefix:
+            prefixed_name = prefix + bone_name
+            bone = armature.pose.bones.get(prefixed_name)
+            if bone:
+                return bone
+            
+            # Handle special cases (e.g., mPelvis -> Hips)
+            name_mapping = {
+                "mPelvis": "Hips",
+                "mSpine1": "Spine",
+                "mSpine2": "Spine1",
+                "mTorso": "Spine2",
+                "mChest": "Spine3",
+                "mNeck": "Neck",
+                "mHead": "Head",
+                "mCollarLeft": "LeftShoulder",
+                "mShoulderLeft": "LeftArm",
+                "mElbowLeft": "LeftForeArm",
+                "mWristLeft": "LeftHand",
+                "mCollarRight": "RightShoulder",
+                "mShoulderRight": "RightArm",
+                "mElbowRight": "RightForeArm",
+                "mWristRight": "RightHand",
+                "mHipLeft": "LeftUpLeg",
+                "mKneeLeft": "LeftLeg",
+                "mAnkleLeft": "LeftFoot",
+                "mHipRight": "RightUpLeg",
+                "mKneeRight": "RightLeg",
+                "mAnkleRight": "RightFoot"
+            }
+            
+            mapped_name = name_mapping.get(bone_name)
+            if mapped_name:
+                prefixed_name = prefix + mapped_name
+                bone = armature.pose.bones.get(prefixed_name)
+                if bone:
+                    return bone
+        
+        return None
+    
+    def parse_xml(self, filepath):
+        """Parses the avatar_skeleton.xml file and returns hierarchical bone data"""
+        try:
+            tree = ET.parse(filepath)
+            root = tree.getroot()
+            
+            # Get the root bone (usually mPelvis)
+            root_bone = root.find('bone')
+            if root_bone is None:
+                self.report({'ERROR'}, "No root bone found in XML")
+                return None
+            
+            return self.parse_bone(root_bone)
+        except Exception as e:
+            self.report({'ERROR'}, f"Failed to parse XML: {str(e)}")
+            return None
+    
+    def parse_bone(self, bone_elem):
+        """Recursively parses bone data from XML element"""
+        bone_data = {
+            'name': bone_elem.get('name'),
+            'pos': self.parse_vector(bone_elem.get('pos')),
+            'rot': self.parse_euler(bone_elem.get('rot')),
+            'scale': self.parse_vector(bone_elem.get('scale', '1.000 1.000 1.000')),
+            'children': []
+        }
+        
+        # Parse child bones
+        for child_elem in bone_elem.findall('bone'):
+            child_data = self.parse_bone(child_elem)
+            if child_data:
+                bone_data['children'].append(child_data)
+        
+        return bone_data
+    
+    def parse_vector(self, vector_str):
+        """Converts string 'x y z' to list of floats"""
+        if not vector_str:
+            return [0.0, 0.0, 0.0]
+        return [float(x) for x in vector_str.split()]
+    
+    def parse_euler(self, euler_str):
+        """Converts string 'x y z' to list of floats (radians)"""
+        if not euler_str:
+            return [0.0, 0.0, 0.0]
+        return [float(x) for x in euler_str.split()]
+    
+    def invoke(self, context, event):
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
+    
+    def execute(self, context):
+        armature = context.active_object
+        prefix = self.detect_prefix(armature)
+        
+        # Parse XML file
+        bone_data = self.parse_xml(self.filepath)
+        if not bone_data:
+            return {'CANCELLED'}
+        
+        # Apply pose recursively
+        def apply_bone_recursive(bone_data, parent_matrix=None):
+            bone = self.find_bone(armature, bone_data['name'], prefix)
+            if not bone:
+                # Skip if bone not found, but still process children
+                for child in bone_data['children']:
+                    apply_bone_recursive(child, parent_matrix)
+                return
+            
+            # Apply transformations
+            if self.apply_position and bone_data['pos']:
+                bone.location = bone_data['pos']
+            
+            if self.apply_rotation and bone_data['rot']:
+                bone.rotation_mode = 'XYZ'
+                bone.rotation_euler = bone_data['rot']
+            
+            if self.apply_scale and bone_data['scale']:
+                bone.scale = bone_data['scale']
+            
+            # Recursively apply to children
+            for child in bone_data['children']:
+                apply_bone_recursive(child)
+        
+        # Start applying from root bone
+        apply_bone_recursive(bone_data)
+        
+        self.report({'INFO'}, f"Pose applied from {self.filepath}")
+        return {'FINISHED'}
+
+# NEU ENDE
+
+
+
+
 
 # ------------------------------------------------------------------------
 # WEIGHT OPTIMIZATION OPERATOR
@@ -2211,6 +2440,33 @@ class OBJECT_PT_mixamo_bone_panel(Panel):
         row.prop(props, "apply_left_hand", toggle=True, text="Left")
         row.prop(props, "apply_right_hand", toggle=True, text="Right")        
         hand_box.operator("object.apply_hand_data", text="Apply Pose", icon='ARMATURE_DATA')
+
+        ### NEUE Bone Groups Box
+        
+        # Bone Groups Box
+        group_box = convert_box.box()
+        group_box.label(text="Bone Pose Tools", icon='GROUP_BONE')
+        
+        # Hand Pose Section
+        hand_row = group_box.row()
+        hand_col = hand_row.column()
+        hand_col.label(text="Hand Pose:")
+        hand_row = hand_col.row(align=True)
+        hand_row.prop(props, "apply_left_hand", toggle=True, text="Left")
+        hand_row.prop(props, "apply_right_hand", toggle=True, text="Right")        
+        hand_col.operator("object.apply_hand_data", text="Apply Hand Pose", icon='HAND')
+        
+        # Group Pose Section
+        group_row = group_box.row()
+        group_col = group_row.column()
+        group_col.label(text="Full Skeleton Pose:")
+        group_row = group_col.row(align=True)
+        group_row.prop(props, "apply_position", text="Pos", toggle=True)
+        group_row.prop(props, "apply_rotation", text="Rot", toggle=True)
+        group_row.prop(props, "apply_scale", text="Scale", toggle=True)
+        group_col.operator("object.apply_group_data", text="Apply from XML", icon='FILE')
+
+        ### NEU: Ende der Bone Groups Box
         
         # Main Conversion Button
         convert_box.operator("object.rename_mixamo_bones", text="Convert Rig", icon='ARMATURE_DATA')
@@ -2311,6 +2567,8 @@ def register():
     bpy.utils.register_class(OBJECT_OT_remove_unwanted_bones)
 
     bpy.utils.register_class(OBJECT_OT_apply_hand_data)
+    bpy.utils.register_class(OBJECT_OT_apply_group_data)
+
     bpy.utils.register_class(OBJECT_OT_fix_deformations)
 
     bpy.utils.register_class(OBJECT_OT_toggle_bone_visibility)
@@ -2344,6 +2602,8 @@ def unregister():
     bpy.utils.unregister_class(OBJECT_OT_repair_pairing)
 
     bpy.utils.unregister_class(OBJECT_OT_apply_hand_data)
+    bpy.utils.unregister_class(OBJECT_OT_apply_group_data)
+
     bpy.utils.unregister_class(OBJECT_OT_fix_deformations)
 
     bpy.utils.unregister_class(OBJECT_OT_toggle_bone_visibility)
