@@ -6,38 +6,84 @@ Diese Version herunterladen als ZIP dann umbenennen mixamo_blender4-main.zip in 
 
 In der V12 sind umfangreiche Reparaturfunktionen hinzugekommen.
 
-1. **Original-Plugin herunterladen**  
-   - Von [GitLab](https://gitlab.com/x190/mixamo_blender4).  
+## 🦴 Neue Bento Konvertierungswerkzeuge
 
-2. **Dateien ersetzen**  
-   - Füge die modifizierte [`__init__.py`](#) in den Plugin-Ordner.  
-   - Lege die neue Datei `mixamo_rename_opensim.py` daneben.  
+Erweitertes Rig-Konvertierungssystem mit erweiterten Pose-Steuerungen für Bento-kompatible Armatures.
 
-3. **Fertig!**  
-   - Starte Blender neu – die OpenSim-Funktion ist jetzt aktiv.  
+## Funktionen
 
-## **Für Entwickler:**  
+### Pose-Anwendungssystem
 
-- Die Änderung ist nur in `__init__.py` und betrifft:  
+🎯 **Präzise Steuerung**:
+
+- **Handpose**  
+  ![Hand Pose](https://img.icons8.com/ios/50/000000/hand.png)  
+  Anwendung spezifischer Handposen mit Links/Rechts-Umschaltung:
 
   ```python
-  # Neu hinzugefügt:
-  if "mixamo_rename_opensim" in locals():
-      importlib.reload(mixamo_rename_opensim)
-  from . import mixamo_rename_opensim
+  apply_left_hand = BoolProperty(default=True)
+  apply_right_hand = BoolProperty(default=True)
   ```
 
-  ... plus `register()`/`unregister()`.  
+- **Vollständige Bento-Pose**  
+  ![Bento](https://img.icons8.com/ios/50/000000/skeleton.png)  
+  Ein-Klick-Anwendung für Ganzkörperposen:
 
----
+  ```python
+  operator("object.apply_bento_data")
+  ```
 
-**Warum das funktioniert:**  
+### Erweiterte Steuerungen
 
-- Meine Änderungen sind **minimal** und bleiben nah am Original.  
-- Keine komplexen Anpassungen nötig – nur Austausch + eine neue Datei.
+⚙️ **Detaillierte Anpassung**:
+
+```python
+# Transformationskomponenten umschalten
+apply_position = BoolProperty(default=True)
+apply_rotation = BoolProperty(default=True)
+apply_scale = BoolProperty(default=False)
+```
+
+### Rig-Werkzeuge
+
+🛠️ **Armature-Verarbeitung**:
+
+| Werkzeug | Operator | Icon | Beschreibung |
+|----------|----------|------|-------------|
+| Rig konvertieren | `rename_mixamo_bones` | ![Convert](https://img.icons8.com/ios/50/000000/armature.png) | Vollständige Mixamo→Bento-Umwandlung |
+| Parenting korrigieren | `auto_parenting` | ![Parent](https://img.icons8.com/ios/50/000000/parenting.png) | Repariert Knochenhierarchien |
+| Bone Rolls fixieren | `fix_bone_roll` | ![Roll](https://img.icons8.com/ios/50/000000/bone-roll.png) | Standardisiert Knochenausrichtungen |
+| Pose zurücksetzen | `apply_rest_pose` | ![Reset](https://img.icons8.com/ios/50/000000/reset.png) | Rückkehr zur Standard-T-Pose |
+
+## UI-Struktur
+
+```mermaid
+graph TD
+    B[Bento-Konvertierung] --> P[Pose-Anwendung]
+    B --> T[Rig-Werkzeuge]
+    P --> H[Handpose]
+    P --> F[Vollständige Bento-Pose]
+    P --> A[Erweiterte Optionen]
+    H --> L[Links/Rechts-Umschaltung]
+    A --> X[Position/Rotation/Skalierung]
+    T --> C[Konvertieren]
+    T --> FP[Parenting korrigieren]
+    T --> FR[Bone Rolls fixieren]
+```
+
+## Anwendungsbeispiel
+
+```python
+# Nur linke Handpose anwenden
+bpy.ops.object.apply_hand_data(apply_left_hand=True, apply_right_hand=False)
+
+# Kompletter Bento-Konvertierungsprozess
+bpy.ops.object.rename_mixamo_bones()
+bpy.ops.object.fix_bone_roll()
+bpy.ops.object.apply_bento_data()
+```
+
+> **Hinweis**: Alle Pose-Operationen funktionieren im **Edit-Modus** und **Pose-Modus** mit vollständiger Undo-Unterstützung.
 
 
 Based on: https://www.adobe.com/products/substance3d/plugins/mixamo-in-blender.html
-
-Download the version from that link for Blender versions older than 4.0
-
