@@ -50,12 +50,12 @@ apply_scale = BoolProperty(default=False)
 
 🛠️ **Armature-Verarbeitung**:
 
-| Werkzeug | Operator | Icon | Beschreibung |
-|----------|----------|------|-------------|
-| Rig konvertieren | `rename_mixamo_bones` | ![Convert](https://img.icons8.com/ios/50/000000/armature.png) | Vollständige Mixamo→Bento-Umwandlung |
-| Parenting korrigieren | `auto_parenting` | ![Parent](https://img.icons8.com/ios/50/000000/parenting.png) | Repariert Knochenhierarchien |
-| Bone Rolls fixieren | `fix_bone_roll` | ![Roll](https://img.icons8.com/ios/50/000000/bone-roll.png) | Standardisiert Knochenausrichtungen |
-| Pose zurücksetzen | `apply_rest_pose` | ![Reset](https://img.icons8.com/ios/50/000000/reset.png) | Rückkehr zur Standard-T-Pose |
+| Werkzeug | Operator | Beschreibung |
+|----------|----------|-------------|
+| Rig konvertieren | `rename_mixamo_bones` | Vollständige Mixamo→Bento-Umwandlung |
+| Parenting korrigieren | `auto_parenting` | Repariert Knochenhierarchien |
+| Bone Rolls fixieren | `fix_bone_roll` | Standardisiert Knochenausrichtungen |
+| Pose zurücksetzen | `apply_rest_pose` | Rückkehr zur Standard-T-Pose |
 
 ## UI-Struktur
 
