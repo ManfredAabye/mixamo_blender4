@@ -6,6 +6,8 @@ Diese Version herunterladen als ZIP dann umbenennen mixamo_blender4-main.zip in 
 
 In der V12 sind umfangreiche Reparaturfunktionen hinzugekommen.
 
+In der V16 sind umfangreiche Bento Funktionen hinzugekommen.
+
 ## 🦴 Neue Bento Konvertierungswerkzeuge
 
 Erweitertes Rig-Konvertierungssystem mit erweiterten Pose-Steuerungen für Bento-kompatible Armatures.
