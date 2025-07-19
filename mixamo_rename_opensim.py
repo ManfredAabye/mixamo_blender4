@@ -1411,9 +1411,147 @@ class OBJECT_OT_remove_unwanted_bones(bpy.types.Operator):
         self.report({'INFO'}, f"{removed} Bones entfernt.")
         return {'FINISHED'}
 
+class OBJECT_OT_auto_scale_bones(Operator):
+    bl_idname = "object.auto_scale_bones"
+    bl_label = "Auto Scale Bones"
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    @classmethod
+    def poll(cls, context):
+        return (context.active_object and 
+                context.active_object.type in ['MESH', 'ARMATURE'])
+    
+    def execute(self, context):
+        try:
+            props = context.scene.bone_mapping_props
+            mesh = next((obj for obj in context.selected_objects if obj.type == 'MESH'), None)
+            armature = next((obj for obj in context.selected_objects if obj.type == 'ARMATURE'), None)
+            
+            if not mesh or not armature:
+                self.report({'ERROR'}, "Select both mesh and armature")
+                return {'CANCELLED'}
+            
+            # 1. Berechne Mesh-Höhe in Weltkoordinaten
+            bbox = mesh.bound_box
+            local_height = bbox[6][2] - bbox[0][2]
+            mesh_height = local_height * mesh.scale.z
+            
+            # 2. Bestimme Skalierungsfaktor basierend auf Modus
+            if props.scale_mode == 'MIXAMO':
+                scale_factor = 0.01
+            elif props.scale_mode == 'AUTO':
+                scale_factor = props.target_height / mesh_height
+            else:  # MANUAL
+                scale_factor = props.manual_scale
+            
+            # 3. Skaliere Armature
+            armature.scale = (scale_factor, scale_factor, scale_factor)
+            bpy.ops.object.transform_apply(scale=True)
+            
+            self.report({'INFO'}, f"Scaled to {props.target_height}m (Factor: {scale_factor:.4f})")
+            return {'FINISHED'}
+            
+        except Exception as e:
+            self.report({'ERROR'}, f"Scaling failed: {str(e)}")
+            return {'CANCELLED'}
+
 # ------------------------------------------------------------------------
 # PROPERTY GROUP (stores addon settings)
 # ------------------------------------------------------------------------
+# class BoneMappingProperties(PropertyGroup):
+#     """Stores all addon settings in the Blender scene"""
+#     # File import/export
+#     import_file: StringProperty(name="Import File", description="Path to JSON file", default="", maxlen=1024, subtype='FILE_PATH')
+#     export_file: StringProperty(name="Export File", description="Path to save mappings", default="", maxlen=1024, subtype='FILE_PATH')
+    
+#     # Preset selection
+#     preset: EnumProperty(name="Preset", description="Bone mapping preset", items=[
+#         ('BENTO_FULL', "Bento Full", "Complete Bento skeleton"),
+#         ('BASIC', "Basic", "Basic OpenSim skeleton"),
+#         ('CUSTOM', "Custom", "Load from file")], default='BENTO_FULL')
+    
+#     # Prefix handling
+#     prefix_mode: EnumProperty(name="Prefix Mode", description="Mixamo prefix handling", items=[
+#         ('AUTO', "Auto-Detect", "Detect automatically"),
+#         ('MANUAL', "Manual", "Select from list"),
+#         ('CUSTOM', "Custom", "Specify custom")], default='AUTO')
+#     manual_prefix: EnumProperty(name="Manual Prefix", description="Predefined prefix", items=[
+#         ('mixamorig:', "mixamorig:", "Standard prefix"),
+#         ('mixamorig1:', "mixamorig1:", "First variant"),
+#         ('mixamorig2:', "mixamorig2:", "Second variant")], default='mixamorig:')
+#     custom_prefix: StringProperty(name="Custom Prefix", description="Custom prefix pattern", default="mixamorig:", maxlen=32)
+    
+#     # Weight optimization
+#     weight_threshold: FloatProperty(name="Weight Threshold", description="Remove small weights", default=0.01, min=0.0, max=0.5)
+#     harden_joints: BoolProperty(name="Harden Joints", description="Sharper joint transitions", default=True)
+    
+#     # Hand posing
+#     apply_left_hand: BoolProperty(name="Left Hand", description="Apply to left hand", default=True)
+#     apply_right_hand: BoolProperty(name="Right Hand", description="Apply to right hand", default=True)
+    
+#     # Deformation repair (NEUE PROPERTIES)
+#     spine_scale: FloatProperty(name="Spine Scale", description="Spine bone scaling factor", default=1.2, min=0.5, max=3.0)
+#     min_bone_scale: FloatProperty(name="Min Bone Scale", description="Minimum bone size relative to mesh", default=1.0, min=0.1, max=5.0)
+
+#     # Neue Properties für Bone Groups hinzufügen
+#     bone_group: bpy.props.EnumProperty(
+#         name="Bone Group",
+#         items=[
+#             ('SPINE', "Spine", "Spine bones (mSpine1, mSpine2, etc.)"),
+#             ('HANDS', "Hands", "Hand bones (mWristLeft, mHandIndex1Left, etc.)"),
+#             ('FACE', "Face", "Face bones (mFaceRoot, mFaceNose, etc.)"),
+#             ('ALL', "All", "All bone groups")
+#         ],
+#         default='ALL'
+#     )
+    
+#     apply_left_bone_group: bpy.props.BoolProperty(
+#         name="Apply Left Side",
+#         default=True,
+#         description="Apply to left side bones"
+#     )
+    
+#     apply_right_bone_group: bpy.props.BoolProperty(
+#         name="Apply Right Side",
+#         default=True,
+#         description="Apply to right side bones"
+#     )
+
+#     # NEUE SCALING PROPERTIES
+#     auto_scale_enabled: BoolProperty(
+#         name="Auto Scale",
+#         default=True,
+#         description="Enable automatic scaling during conversion"
+#     )
+    
+#     target_height: FloatProperty(
+#         name="Target Height",
+#         default=1.75,
+#         min=0.5,
+#         max=3.0,
+#         step=0.1,
+#         precision=2,
+#         description="Desired character height in meters"
+#     )
+    
+#     scale_mode: EnumProperty(
+#         name="Scale Mode",
+#         items=[
+#             ('MANUAL', "Manual", "Set scale factor manually"),
+#             ('AUTO', "Auto", "Calculate from mesh bounds"),
+#             ('MIXAMO', "Mixamo Fix", "Apply 0.01 scale for Mixamo models")
+#         ],
+#         default='AUTO'
+#     )
+    
+#     manual_scale: FloatProperty(
+#         name="Scale Factor",
+#         default=1.0,
+#         min=0.001,
+#         max=100.0,
+#         description="Manual scaling factor"
+#     )
+
 class BoneMappingProperties(PropertyGroup):
     """Stores all addon settings in the Blender scene"""
     # File import/export
@@ -1421,20 +1559,11 @@ class BoneMappingProperties(PropertyGroup):
     export_file: StringProperty(name="Export File", description="Path to save mappings", default="", maxlen=1024, subtype='FILE_PATH')
     
     # Preset selection
-    preset: EnumProperty(name="Preset", description="Bone mapping preset", items=[
-        ('BENTO_FULL', "Bento Full", "Complete Bento skeleton"),
-        ('BASIC', "Basic", "Basic OpenSim skeleton"),
-        ('CUSTOM', "Custom", "Load from file")], default='BENTO_FULL')
+    preset: EnumProperty(name="Preset", description="Bone mapping preset", items=[('BENTO_FULL', "Bento Full", "Complete Bento skeleton"), ('BASIC', "Basic", "Basic OpenSim skeleton"), ('CUSTOM', "Custom", "Load from file")], default='BENTO_FULL')
     
     # Prefix handling
-    prefix_mode: EnumProperty(name="Prefix Mode", description="Mixamo prefix handling", items=[
-        ('AUTO', "Auto-Detect", "Detect automatically"),
-        ('MANUAL', "Manual", "Select from list"),
-        ('CUSTOM', "Custom", "Specify custom")], default='AUTO')
-    manual_prefix: EnumProperty(name="Manual Prefix", description="Predefined prefix", items=[
-        ('mixamorig:', "mixamorig:", "Standard prefix"),
-        ('mixamorig1:', "mixamorig1:", "First variant"),
-        ('mixamorig2:', "mixamorig2:", "Second variant")], default='mixamorig:')
+    prefix_mode: EnumProperty(name="Prefix Mode", description="Mixamo prefix handling", items=[('AUTO', "Auto-Detect", "Detect automatically"), ('MANUAL', "Manual", "Select from list"), ('CUSTOM', "Custom", "Specify custom")], default='AUTO')
+    manual_prefix: EnumProperty(name="Manual Prefix", description="Predefined prefix", items=[('mixamorig:', "mixamorig:", "Standard prefix"), ('mixamorig1:', "mixamorig1:", "First variant"), ('mixamorig2:', "mixamorig2:", "Second variant")], default='mixamorig:')
     custom_prefix: StringProperty(name="Custom Prefix", description="Custom prefix pattern", default="mixamorig:", maxlen=32)
     
     # Weight optimization
@@ -1445,33 +1574,20 @@ class BoneMappingProperties(PropertyGroup):
     apply_left_hand: BoolProperty(name="Left Hand", description="Apply to left hand", default=True)
     apply_right_hand: BoolProperty(name="Right Hand", description="Apply to right hand", default=True)
     
-    # Deformation repair (NEUE PROPERTIES)
+    # Deformation repair
     spine_scale: FloatProperty(name="Spine Scale", description="Spine bone scaling factor", default=1.2, min=0.5, max=3.0)
     min_bone_scale: FloatProperty(name="Min Bone Scale", description="Minimum bone size relative to mesh", default=1.0, min=0.1, max=5.0)
 
-    # Neue Properties für Bone Groups hinzufügen
-    bone_group: bpy.props.EnumProperty(
-        name="Bone Group",
-        items=[
-            ('SPINE', "Spine", "Spine bones (mSpine1, mSpine2, etc.)"),
-            ('HANDS', "Hands", "Hand bones (mWristLeft, mHandIndex1Left, etc.)"),
-            ('FACE', "Face", "Face bones (mFaceRoot, mFaceNose, etc.)"),
-            ('ALL', "All", "All bone groups")
-        ],
-        default='ALL'
-    )
-    
-    apply_left_bone_group: bpy.props.BoolProperty(
-        name="Apply Left Side",
-        default=True,
-        description="Apply to left side bones"
-    )
-    
-    apply_right_bone_group: bpy.props.BoolProperty(
-        name="Apply Right Side",
-        default=True,
-        description="Apply to right side bones"
-    )
+    # Bone Groups
+    bone_group: EnumProperty(name="Bone Group", items=[('SPINE', "Spine", "Spine bones"), ('HANDS', "Hands", "Hand bones"), ('FACE', "Face", "Face bones"), ('ALL', "All", "All bone groups")], default='ALL')
+    apply_left_bone_group: BoolProperty(name="Apply Left Side", default=True, description="Apply to left side bones")
+    apply_right_bone_group: BoolProperty(name="Apply Right Side", default=True, description="Apply to right side bones")
+
+    # Scaling properties
+    auto_scale_enabled: BoolProperty(name="Auto Scale", default=True, description="Enable automatic scaling during conversion")
+    target_height: FloatProperty(name="Target Height", default=1.75, min=0.5, max=3.0, step=0.1, precision=2, description="Desired character height in meters")
+    scale_mode: EnumProperty(name="Scale Mode", items=[('MANUAL', "Manual", "Set scale factor manually"), ('AUTO', "Auto", "Calculate from mesh bounds"), ('MIXAMO', "Mixamo Fix", "Apply 0.01 scale for Mixamo models")], default='AUTO')
+    manual_scale: FloatProperty(name="Scale Factor", default=1.0, min=0.001, max=100.0, description="Manual scaling factor")
 
 # ------------------------------------------------------------------------
 # IMPORT/EXPORT OPERATORS
@@ -2883,49 +2999,33 @@ class OBJECT_PT_mixamo_bone_panel(Panel):
         box = layout.box()
         box.label(text="Bone Visibility")
         box.operator("object.toggle_bone_visibility", text="Vordergrund/Hintergrund", icon='HIDE_OFF')
-                
-        # # ===== 2. BENTO CONVERSION SECTION =====
-        # convert_box = layout.box()
-        # convert_box.label(text="2. Bento Conversion", icon='ARMATURE_DATA')
-        
-        # # NEU: Hand Positioning in eigener Box
-        # hand_box = convert_box.box()
-        # hand_box.label(text="Hand Pose", icon='HAND')
-        
-        # # NEU: Toggle-Reihe
-        # row = hand_box.row(align=True)
-        # row.prop(props, "apply_left_hand", toggle=True, text="Left")
-        # row.prop(props, "apply_right_hand", toggle=True, text="Right")        
-        # hand_box.operator("object.apply_hand_data", text="Apply Pose", icon='ARMATURE_DATA')
-
-        # # NEU: Bento Pose in eigener Box
-        # bento_box = convert_box.box()
-        # bento_box.label(text="Bento Pose", icon='OUTLINER_OB_ARMATURE')
-
-        # # NEU: Apply Button
-        # bento_box.operator("object.apply_bento_data", text="Apply Bento Pose", icon='ARMATURE_DATA')
-
-        # # NEU: Group Controls unter Hand Pose
-        # hand_box.separator()
-        # hand_box.label(text="Full Skeleton Pose:")
-        # group_row = hand_box.row(align=True)
-        # group_row.prop(props, "apply_position", text="Pos", toggle=True)
-        # group_row.prop(props, "apply_rotation", text="Rot", toggle=True)
-        # group_row.prop(props, "apply_scale", text="Scale", toggle=True)
-        # hand_box.operator("object.apply_group_data", text="Apply from XML", icon='FILE')
-        
-        # # Main Conversion Button
-        # convert_box.operator("object.rename_mixamo_bones", text="Convert Rig", icon='ARMATURE_DATA')
-        
-        # # Bone Structure Tools
-        # col = convert_box.column(align=True)
-        # col.operator("object.auto_parenting", text="Fix Bone Parenting", icon='CONSTRAINT_BONE')
-        # col.operator("object.fix_bone_roll", text="Fix Bone Rolls", icon='BONE_DATA')
-        # col.operator("object.apply_rest_pose", text="Apply Rest Pose", icon='POSE_HLT')
 
         # ===== 2. BENTO CONVERSION SECTION =====
         convert_box = layout.box()
         convert_box.label(text="2. Bento Conversion", icon='ARMATURE_DATA')
+
+        # NEU: Automatische Skalierung
+        # row = convert_box.row(align=True)
+        # row.label(text="Auto-Scale:")
+        # row.operator("object.auto_scale_bones", text="Fit to Mesh", icon='SNAP_INCREMENT')
+        # NEU: Skalierungs-UI mit gültigem Icon
+        row = convert_box.row(align=True)
+        row.prop(props, "auto_scale_enabled", text="Auto Scale", toggle=True, icon='MODIFIER')  # Geändert zu MODIFIER
+        if props.auto_scale_enabled:
+            row = convert_box.row(align=True)
+            row.prop(props, "scale_mode", text="")
+            
+            if props.scale_mode == 'AUTO':
+                row = convert_box.row(align=True)
+                row.prop(props, "target_height", text="Height (m)")
+            elif props.scale_mode == 'MANUAL':
+                row = convert_box.row(align=True)
+                row.prop(props, "manual_scale", text="Scale Factor")
+        row = convert_box.row(align=True)
+        row.operator("object.auto_scale_bones", text="Apply Scaling", icon='SNAP_INCREMENT')
+
+
+
 
         # Pose Application Section
         pose_box = convert_box.box()
@@ -3058,6 +3158,10 @@ def register():
     bpy.utils.register_class(OBJECT_OT_fix_deformations)
 
     bpy.utils.register_class(OBJECT_OT_toggle_bone_visibility)
+
+    bpy.utils.register_class(OBJECT_OT_auto_scale_bones)
+    
+    
     
     bpy.types.Scene.bone_mapping_props = PointerProperty(type=BoneMappingProperties)
 
@@ -3094,7 +3198,9 @@ def unregister():
     bpy.utils.unregister_class(OBJECT_OT_fix_deformations)
 
     bpy.utils.unregister_class(OBJECT_OT_toggle_bone_visibility)
-    
+
+    bpy.utils.unregister_class(OBJECT_OT_auto_scale_bones)
+
     del bpy.types.Scene.bone_mapping_props
 
 if __name__ == "__main__":
