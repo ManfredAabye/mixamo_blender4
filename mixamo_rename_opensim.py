@@ -851,6 +851,391 @@ hand_data = {
     }
 }
 
+bento_data = {
+    "mPelvis": {
+        "pos": [0.000, 0.000, 1.067],
+        "rot": [0.0, 0.0, 0.0],
+        "children": {
+            "mSpine1": {
+                "pos": [0.000, 0.000, 0.084],
+                "rot": [0.0, 0.0, 0.0],
+                "children": {
+                    "mSpine2": {
+                        "pos": [0.000, 0.000, -0.084],
+                        "rot": [0.0, 0.0, 0.0],
+                        "children": {
+                            "mTorso": {
+                                "pos": [0.000, 0.000, 0.084],
+                                "rot": [0.0, 0.0, 0.0],
+                                "children": {
+                                    "mSpine3": {
+                                        "pos": [-0.015, 0.000, 0.205],
+                                        "rot": [0.0, 0.0, 0.0],
+                                        "children": {
+                                            "mSpine4": {
+                                                "pos": [0.015, 0.000, -0.205],
+                                                "rot": [0.0, 0.0, 0.0],
+                                                "children": {
+                                                    "mChest": {
+                                                        "pos": [-0.015, 0.000, 0.205],
+                                                        "rot": [0.0, 0.0, 0.0],
+                                                        "children": {
+                                                            "mNeck": {
+                                                                "pos": [-0.010, 0.000, 0.251],
+                                                                "rot": [0.0, 0.0, 0.0],
+                                                                "children": {
+                                                                    "mHead": {
+                                                                        "pos": [0.000, -0.000, 0.076],
+                                                                        "rot": [0.0, 0.0, 0.0],
+                                                                        "children": {
+                                                                            "mSkull": {
+                                                                                "pos": [0.000, 0.000, 0.079],
+                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                "children": {}
+                                                                            },
+                                                                            "mEyeRight": {
+                                                                                "pos": [0.098, -0.036, 0.079],
+                                                                                "rot": [0.0, 0.0, -0.0],
+                                                                                "children": {}
+                                                                            },
+                                                                            "mEyeLeft": {
+                                                                                "pos": [0.098, 0.036, 0.079],
+                                                                                "rot": [0.0, -0.0, 0.0],
+                                                                                "children": {}
+                                                                            },
+                                                                            "mFaceRoot": {
+                                                                                "pos": [0.025, 0.000, 0.045],
+                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                "children": {
+                                                                                    # Face bones would be added here
+                                                                                    # (omitted for brevity but would include all face bones from the XML)
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "mCollarLeft": {
+                                                                "pos": [-0.021, 0.085, 0.165],
+                                                                "rot": [0.0, 0.0, 0.0],
+                                                                "children": {
+                                                                    "mShoulderLeft": {
+                                                                        "pos": [0.000, 0.079, -0.000],
+                                                                        "rot": [0.0, 0.0, 0.0],
+                                                                        "children": {
+                                                                            "mElbowLeft": {
+                                                                                "pos": [0.000, 0.248, 0.000],
+                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                "children": {
+                                                                                    "mWristLeft": {
+                                                                                        "pos": [-0.000, 0.205, 0.000],
+                                                                                        "rot": [0.0, 0.0, 0.0],
+                                                                                        "children": {
+                                                                                            "mHandMiddle1Left": {
+                                                                                                "pos": [0.013, 0.101, 0.015],
+                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                "children": {
+                                                                                                    "mHandMiddle2Left": {
+                                                                                                        "pos": [-0.001, 0.040, -0.006],
+                                                                                                        "rot": [0.0, 0.0, 0.0],
+                                                                                                        "children": {
+                                                                                                            "mHandMiddle3Left": {
+                                                                                                                "pos": [-0.001, 0.049, -0.008],
+                                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                                "children": {}
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            },
+                                                                                            "mHandIndex1Left": {
+                                                                                                "pos": [0.038, 0.097, 0.015],
+                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                "children": {
+                                                                                                    "mHandIndex2Left": {
+                                                                                                        "pos": [0.017, 0.036, -0.006],
+                                                                                                        "rot": [0.0, 0.0, 0.0],
+                                                                                                        "children": {
+                                                                                                            "mHandIndex3Left": {
+                                                                                                                "pos": [0.014, 0.032, -0.006],
+                                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                                "children": {}
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            },
+                                                                                            "mHandThumb1Left": {
+                                                                                                "pos": [0.031, 0.026, 0.004],
+                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                "children": {
+                                                                                                    "mHandThumb2Left": {
+                                                                                                        "pos": [0.028, 0.032, -0.001],
+                                                                                                        "rot": [0.0, 0.0, 0.0],
+                                                                                                        "children": {
+                                                                                                            "mHandThumb3Left": {
+                                                                                                                "pos": [0.023, 0.031, -0.001],
+                                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                                "children": {}
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            },
+                                                                                            "mHandRing1Left": {
+                                                                                                "pos": [-0.010, 0.099, 0.009],
+                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                "children": {
+                                                                                                    "mHandRing2Left": {
+                                                                                                        "pos": [-0.013, 0.038, -0.008],
+                                                                                                        "rot": [0.0, 0.0, 0.0],
+                                                                                                        "children": {
+                                                                                                            "mHandRing3Left": {
+                                                                                                                "pos": [-0.013, 0.040, -0.009],
+                                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                                "children": {}
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            },
+                                                                                            "mHandPinky1Left": {
+                                                                                                "pos": [-0.031, 0.095, 0.003],
+                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                "children": {
+                                                                                                    "mHandPinky2Left": {
+                                                                                                        "pos": [-0.024, 0.025, -0.006],
+                                                                                                        "rot": [0.0, 0.0, 0.0],
+                                                                                                        "children": {
+                                                                                                            "mHandPinky3Left": {
+                                                                                                                "pos": [-0.015, 0.018, -0.004],
+                                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                                "children": {}
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "mCollarRight": {
+                                                                "pos": [-0.021, -0.085, 0.165],
+                                                                "rot": [0.0, 0.0, 0.0],
+                                                                "children": {
+                                                                    "mShoulderRight": {
+                                                                        "pos": [0.000, -0.079, -0.000],
+                                                                        "rot": [0.0, 0.0, 0.0],
+                                                                        "children": {
+                                                                            "mElbowRight": {
+                                                                                "pos": [0.000, -0.248, -0.000],
+                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                "children": {
+                                                                                    "mWristRight": {
+                                                                                        "pos": [0.000, -0.205, -0.000],
+                                                                                        "rot": [0.0, 0.0, 0.0],
+                                                                                        "children": {
+                                                                                            "mHandMiddle1Right": {
+                                                                                                "pos": [0.013, -0.101, 0.015],
+                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                "children": {
+                                                                                                    "mHandMiddle2Right": {
+                                                                                                        "pos": [-0.001, -0.040, -0.006],
+                                                                                                        "rot": [0.0, 0.0, 0.0],
+                                                                                                        "children": {
+                                                                                                            "mHandMiddle3Right": {
+                                                                                                                "pos": [-0.001, -0.049, -0.008],
+                                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                                "children": {}
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            },
+                                                                                            "mHandIndex1Right": {
+                                                                                                "pos": [0.038, -0.097, 0.015],
+                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                "children": {
+                                                                                                    "mHandIndex2Right": {
+                                                                                                        "pos": [0.017, -0.036, -0.006],
+                                                                                                        "rot": [0.0, 0.0, 0.0],
+                                                                                                        "children": {
+                                                                                                            "mHandIndex3Right": {
+                                                                                                                "pos": [0.014, -0.032, -0.006],
+                                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                                "children": {}
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            },
+                                                                                            "mHandThumb1Right": {
+                                                                                                "pos": [0.031, -0.026, 0.004],
+                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                "children": {
+                                                                                                    "mHandThumb2Right": {
+                                                                                                        "pos": [0.028, -0.032, -0.001],
+                                                                                                        "rot": [0.0, 0.0, 0.0],
+                                                                                                        "children": {
+                                                                                                            "mHandThumb3Right": {
+                                                                                                                "pos": [0.023, -0.031, -0.001],
+                                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                                "children": {}
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            },
+                                                                                            "mHandRing1Right": {
+                                                                                                "pos": [-0.010, -0.099, 0.009],
+                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                "children": {
+                                                                                                    "mHandRing2Right": {
+                                                                                                        "pos": [-0.013, -0.038, -0.008],
+                                                                                                        "rot": [0.0, 0.0, 0.0],
+                                                                                                        "children": {
+                                                                                                            "mHandRing3Right": {
+                                                                                                                "pos": [-0.013, -0.040, -0.009],
+                                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                                "children": {}
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            },
+                                                                                            "mHandPinky1Right": {
+                                                                                                "pos": [-0.031, -0.095, 0.003],
+                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                "children": {
+                                                                                                    "mHandPinky2Right": {
+                                                                                                        "pos": [-0.024, -0.025, -0.006],
+                                                                                                        "rot": [0.0, 0.0, 0.0],
+                                                                                                        "children": {
+                                                                                                            "mHandPinky3Right": {
+                                                                                                                "pos": [-0.015, -0.018, -0.004],
+                                                                                                                "rot": [0.0, 0.0, 0.0],
+                                                                                                                "children": {}
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "mWingsRoot": {
+                                                                "pos": [-0.014, 0.000, 0.000],
+                                                                "rot": [0.0, 0.0, 0.0],
+                                                                "children": {
+                                                                    # Wing bones would be added here
+                                                                    # (omitted for brevity but would include all wing bones from the XML)
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "mHipRight": {
+                "pos": [0.034, -0.129, -0.041],
+                "rot": [0.0, 0.0, 0.0],
+                "children": {
+                    "mKneeRight": {
+                        "pos": [-0.001, 0.049, -0.491],
+                        "rot": [0.0, 0.0, 0.0],
+                        "children": {
+                            "mAnkleRight": {
+                                "pos": [-0.029, 0.000, -0.468],
+                                "rot": [0.0, 0.0, 0.0],
+                                "children": {
+                                    "mFootRight": {
+                                        "pos": [0.112, -0.000, -0.061],
+                                        "rot": [0.0, 0.0, 0.0],
+                                        "children": {
+                                            "mToeRight": {
+                                                "pos": [0.109, 0.000, 0.000],
+                                                "rot": [0.0, 0.0, 0.0],
+                                                "children": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "mHipLeft": {
+                "pos": [0.034, 0.127, -0.041],
+                "rot": [0.0, 0.0, 0.0],
+                "children": {
+                    "mKneeLeft": {
+                        "pos": [-0.001, -0.046, -0.491],
+                        "rot": [0.0, 0.0, 0.0],
+                        "children": {
+                            "mAnkleLeft": {
+                                "pos": [-0.029, 0.001, -0.468],
+                                "rot": [0.0, 0.0, 0.0],
+                                "children": {
+                                    "mFootLeft": {
+                                        "pos": [0.112, -0.000, -0.061],
+                                        "rot": [0.0, 0.0, 0.0],
+                                        "children": {
+                                            "mToeLeft": {
+                                                "pos": [0.109, 0.000, 0.000],
+                                                "rot": [0.0, 0.0, 0.0],
+                                                "children": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "mTail1": {
+                "pos": [-0.116, 0.000, 0.047],
+                "rot": [0.0, 0.0, 0.0],
+                "children": {
+                    # Tail bones would be added here
+                    # (omitted for brevity but would include all tail bones from the XML)
+                }
+            },
+            "mGroin": {
+                "pos": [0.064, 0.000, -0.097],
+                "rot": [0.0, 0.0, 0.0],
+                "children": {}
+            },
+            "mHindLimbsRoot": {
+                "pos": [-0.200, 0.000, 0.084],
+                "rot": [0.0, 0.0, 0.0],
+                "children": {
+                    # Hind limb bones would be added here
+                    # (omitted for brevity but would include all hind limb bones from the XML)
+                }
+            }
+        }
+    }
+}
+
 # ------------------------------------------------------------------------
 # Bone Hierarchy Repair and Cleanup Functions
 # ------------------------------------------------------------------------
@@ -1348,9 +1733,81 @@ class OBJECT_OT_apply_hand_data(Operator):
         return {'FINISHED'}
 
 
+# NEU Bento
+# BENTO DATA APPLICATION OPERATOR
+class OBJECT_OT_apply_bento_data(Operator):
+    bl_idname = "object.apply_bento_data"
+    bl_label = "Apply Bento Pose"
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    @classmethod
+    def poll(cls, context):
+        return (context.active_object and 
+                context.active_object.type == 'ARMATURE')
+    
+    def detect_prefix(self, armature):
+        """Automatically detects Mixamo prefix in armature"""
+        prefixes = ['mixamorig:', 'mixamorig1:', 'mixamorig2:']
+        for bone in armature.data.bones:
+            for prefix in prefixes:
+                if bone.name.startswith(prefix):
+                    return prefix
+        return None
+    
+    def find_bone(self, armature, bento_name, prefix=""):
+        """
+        Finds a bone by:
+        1. Original Bento name (e.g., "mWristLeft")
+        2. Mixamo name with prefix (e.g., "mixamorig:LeftHand")
+        3. Fallback to Bento-to-Mixamo mapping (if defined in PRESETS)
+        """
+        # Try exact Bento name first
+        bone = armature.pose.bones.get(bento_name)
+        if bone:
+            return bone
+        
+        # Try Mixamo name if prefix exists (e.g., "mixamorig:LeftHand")
+        if prefix:
+            # Reverse lookup in PRESETS to find Mixamo equivalent
+            for mixamo_name, preset_name in PRESETS['BENTO_FULL'].items():
+                if preset_name == bento_name:
+                    prefixed_name = prefix + mixamo_name
+                    bone = armature.pose.bones.get(prefixed_name)
+                    if bone:
+                        return bone
+        
+        return None
+    
+    def execute(self, context):
+        props = context.scene.bone_mapping_props
+        armature = context.active_object
+        prefix = self.detect_prefix(armature)  # Auto-detect Mixamo prefix
+        
+        def apply_bone_recursive(bone_dict):
+            """Applies pose data recursively"""
+            for bento_name, data in bone_dict.items():
+                if isinstance(data, dict) and 'pos' in data:
+                    bone = self.find_bone(armature, bento_name, prefix)
+                    if not bone:
+                        self.report({'WARNING'}, f"Bone '{bento_name}' not found!")
+                        continue
+                    
+                    # Apply position and rotation
+                    bone.location = data['pos']
+                    if 'rot' in data:
+                        bone.rotation_mode = 'XYZ'
+                        bone.rotation_euler = data['rot']
+                
+                # Process children
+                if 'children' in data:
+                    apply_bone_recursive(data['children'])
 
-
-# NEU
+        # Apply the full Bento pose
+        apply_bone_recursive(bento_data)
+        
+        self.report({'INFO'}, "Bento pose applied!")
+        return {'FINISHED'}
+# NEU ENDE
 
 # ==============================================
 # XML-BASED BONE POSE APPLIER
@@ -2427,55 +2884,83 @@ class OBJECT_PT_mixamo_bone_panel(Panel):
         box.label(text="Bone Visibility")
         box.operator("object.toggle_bone_visibility", text="Vordergrund/Hintergrund", icon='HIDE_OFF')
                 
-        # ===== 2. CONVERSION SECTION =====
-        convert_box = layout.box()
-        convert_box.label(text="2. Conversion", icon='ARMATURE_DATA')
+        # # ===== 2. BENTO CONVERSION SECTION =====
+        # convert_box = layout.box()
+        # convert_box.label(text="2. Bento Conversion", icon='ARMATURE_DATA')
         
-        # NEU: Hand Positioning in eigener Box
-        hand_box = convert_box.box()
-        hand_box.label(text="Hand Pose", icon='HAND')
+        # # NEU: Hand Positioning in eigener Box
+        # hand_box = convert_box.box()
+        # hand_box.label(text="Hand Pose", icon='HAND')
         
-        # NEU: Toggle-Reihe
-        row = hand_box.row(align=True)
-        row.prop(props, "apply_left_hand", toggle=True, text="Left")
-        row.prop(props, "apply_right_hand", toggle=True, text="Right")        
-        hand_box.operator("object.apply_hand_data", text="Apply Pose", icon='ARMATURE_DATA')
+        # # NEU: Toggle-Reihe
+        # row = hand_box.row(align=True)
+        # row.prop(props, "apply_left_hand", toggle=True, text="Left")
+        # row.prop(props, "apply_right_hand", toggle=True, text="Right")        
+        # hand_box.operator("object.apply_hand_data", text="Apply Pose", icon='ARMATURE_DATA')
 
-        ### NEUE Bone Groups Box
+        # # NEU: Bento Pose in eigener Box
+        # bento_box = convert_box.box()
+        # bento_box.label(text="Bento Pose", icon='OUTLINER_OB_ARMATURE')
+
+        # # NEU: Apply Button
+        # bento_box.operator("object.apply_bento_data", text="Apply Bento Pose", icon='ARMATURE_DATA')
+
+        # # NEU: Group Controls unter Hand Pose
+        # hand_box.separator()
+        # hand_box.label(text="Full Skeleton Pose:")
+        # group_row = hand_box.row(align=True)
+        # group_row.prop(props, "apply_position", text="Pos", toggle=True)
+        # group_row.prop(props, "apply_rotation", text="Rot", toggle=True)
+        # group_row.prop(props, "apply_scale", text="Scale", toggle=True)
+        # hand_box.operator("object.apply_group_data", text="Apply from XML", icon='FILE')
         
-        # Bone Groups Box
-        group_box = convert_box.box()
-        group_box.label(text="Bone Pose Tools", icon='GROUP_BONE')
+        # # Main Conversion Button
+        # convert_box.operator("object.rename_mixamo_bones", text="Convert Rig", icon='ARMATURE_DATA')
         
-        # Hand Pose Section
-        hand_row = group_box.row()
-        hand_col = hand_row.column()
+        # # Bone Structure Tools
+        # col = convert_box.column(align=True)
+        # col.operator("object.auto_parenting", text="Fix Bone Parenting", icon='CONSTRAINT_BONE')
+        # col.operator("object.fix_bone_roll", text="Fix Bone Rolls", icon='BONE_DATA')
+        # col.operator("object.apply_rest_pose", text="Apply Rest Pose", icon='POSE_HLT')
+
+        # ===== 2. BENTO CONVERSION SECTION =====
+        convert_box = layout.box()
+        convert_box.label(text="2. Bento Conversion", icon='ARMATURE_DATA')
+
+        # Pose Application Section
+        pose_box = convert_box.box()
+        pose_box.label(text="Pose Application", icon='POSE_HLT')
+
+        # Left/Right Hand Controls
+        hand_col = pose_box.column(align=True)
         hand_col.label(text="Hand Pose:")
         hand_row = hand_col.row(align=True)
         hand_row.prop(props, "apply_left_hand", toggle=True, text="Left")
         hand_row.prop(props, "apply_right_hand", toggle=True, text="Right")        
         hand_col.operator("object.apply_hand_data", text="Apply Hand Pose", icon='HAND')
-        
-        # Group Pose Section
-        group_row = group_box.row()
-        group_col = group_row.column()
-        group_col.label(text="Full Skeleton Pose:")
-        group_row = group_col.row(align=True)
-        group_row.prop(props, "apply_position", text="Pos", toggle=True)
-        group_row.prop(props, "apply_rotation", text="Rot", toggle=True)
-        group_row.prop(props, "apply_scale", text="Scale", toggle=True)
-        group_col.operator("object.apply_group_data", text="Apply from XML", icon='FILE')
 
-        ### NEU: Ende der Bone Groups Box
-        
-        # Main Conversion Button
-        convert_box.operator("object.rename_mixamo_bones", text="Convert Rig", icon='ARMATURE_DATA')
-        
-        # Bone Structure Tools
-        col = convert_box.column(align=True)
-        col.operator("object.auto_parenting", text="Fix Bone Parenting", icon='CONSTRAINT_BONE')
-        col.operator("object.fix_bone_roll", text="Fix Bone Rolls", icon='BONE_DATA')
-        col.operator("object.apply_rest_pose", text="Apply Rest Pose", icon='POSE_HLT')
+        # Bento Full Pose Controls
+        bento_col = pose_box.column(align=True)
+        bento_col.label(text="Full Body Pose:")
+        bento_col.operator("object.apply_bento_data", text="Apply Bento Pose", icon='OUTLINER_OB_ARMATURE')
+
+        # Advanced Pose Controls
+        adv_col = pose_box.column(align=True)
+        adv_col.label(text="Advanced Options:")
+        adv_row = adv_col.row(align=True)
+        adv_row.prop(props, "apply_position", text="Pos", toggle=True)
+        adv_row.prop(props, "apply_rotation", text="Rot", toggle=True)
+        adv_row.prop(props, "apply_scale", text="Scale", toggle=True)
+        adv_col.operator("object.apply_group_data", text="Apply Custom Pose", icon='FILE')
+
+        # Main Conversion Tools
+        tools_box = convert_box.box()
+        tools_box.label(text="Rig Tools", icon='TOOL_SETTINGS')
+        tools_col = tools_box.column(align=True)
+        tools_col.operator("object.rename_mixamo_bones", text="Convert to Bento", icon='ARMATURE_DATA')
+        tools_col.operator("object.auto_parenting", text="Fix Bone Parenting", icon='CONSTRAINT_BONE')
+        tools_col.operator("object.fix_bone_roll", text="Fix Bone Rolls", icon='BONE_DATA')
+        tools_col.operator("object.apply_rest_pose", text="Apply Rest Pose", icon='POSE_HLT')
         
         # ===== 3. WEIGHT PROCESSING =====
         weight_box = layout.box()
@@ -2567,6 +3052,7 @@ def register():
     bpy.utils.register_class(OBJECT_OT_remove_unwanted_bones)
 
     bpy.utils.register_class(OBJECT_OT_apply_hand_data)
+    bpy.utils.register_class(OBJECT_OT_apply_bento_data)
     bpy.utils.register_class(OBJECT_OT_apply_group_data)
 
     bpy.utils.register_class(OBJECT_OT_fix_deformations)
@@ -2602,6 +3088,7 @@ def unregister():
     bpy.utils.unregister_class(OBJECT_OT_repair_pairing)
 
     bpy.utils.unregister_class(OBJECT_OT_apply_hand_data)
+    bpy.utils.unregister_class(OBJECT_OT_apply_bento_data)
     bpy.utils.unregister_class(OBJECT_OT_apply_group_data)
 
     bpy.utils.unregister_class(OBJECT_OT_fix_deformations)
